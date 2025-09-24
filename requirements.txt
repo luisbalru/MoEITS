@@ -1,0 +1,9 @@
+scikit-learn
+scipy
+numpy
+pandas
+torch
+transformers
+accelerate
+datasets
+deepeval
