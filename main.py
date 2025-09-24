@@ -1,7 +1,7 @@
 from MoEITS_simplification_service import MoEITS_Simplification_Service
 import numpy as np
 
-moe_simp_service = MoEITS_Simplification_Service("deepseek-ai/deepseek-moe-16b-base")
+moe_simp_service = MoEITS_Simplification_Service("mistralai/Mixtral-8x7B-Instruct-v0.1")
 print("Parámetros modelo original: ", np.sum(p.numel() for p in moe_simp_service.original_model.parameters() if p.requires_grad))
 input()
-print(moe_simp_service.original_model.model.layers[1].mlp)
+print(moe_simp_service.original_model)
