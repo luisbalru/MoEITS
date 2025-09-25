@@ -11,14 +11,17 @@ from abc import ABC, abstractmethod
 
 class MoEITS_Simplification_Service(ABC):
 
-    def __init__(self, model_name, output_base_path='', config_path='utils/config.json'):
+    def __init__(self, model_name, factor = 1.5, output_base_path='', config_path='utils/config.json'):
         with open(config_path, 'r') as f:
             config = json.load(f)
         self.model_name = model_name
         self.output_base_path = output_base_path
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
-        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
+        #self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
+        #self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
+        self.tokenizer = None
+        self.simplified_original_model = None
         self.simplified_model = None
+        self.factor = factor
         self.layers = {}
 
     @abstractmethod
@@ -46,7 +49,7 @@ class MoEITS_Simplification_Service(ABC):
         remaining_experts = list(np.arange(nmi_matrix.shape[0]))
         mean = np.mean(nmi_matrix)
         iqr_val = iqr(nmi_matrix)
-        th = mean + iqr_val*1.5
+        th = mean + iqr_val*self.factor
         while len(np.where(nmi_matrix > th)[0]):
             arg_e1, arg_e2 = unravel_index(np.argmax(nmi_matrix), nmi_matrix.shape)
             closeness_e1 = np.mean(nmi_matrix[arg_e1,:])
