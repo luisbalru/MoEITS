@@ -19,7 +19,7 @@ class MoEITS_Simplification_Service(ABC):
         #self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
         #self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
         self.tokenizer = None
-        self.simplified_original_model = None
+        self.original_model = None
         self.simplified_model = None
         self.factor = factor
         self.layers = {}
