@@ -3,7 +3,6 @@ from scipy.stats import entropy, iqr
 import pandas as pd
 import os
 from numpy import unravel_index
-import torch
 import json
 from abc import ABC, abstractmethod
 
@@ -63,7 +62,7 @@ class MoEITS_Simplification_Service(ABC):
         print("Setting new weights to experts...")
         self._set_weights_to_experts(name_experts)
 
-    def simplified_original_model(self):
+    def simplify_original_model(self):
         self._get_mutual_information_metrics()
         num_experts, name_experts = self._simplify_model()
         self._build_simplified_model(num_experts, name_experts)
