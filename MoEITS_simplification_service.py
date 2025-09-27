@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.stats import entropy, iqr
 import pandas as pd
-from transformers import AutoTokenizer, MixtralForCausalLM, MixtralConfig, AutoModelForCausalLM
 import os
 from numpy import unravel_index
 import torch
@@ -10,20 +9,6 @@ from abc import ABC, abstractmethod
 
 
 class MoEITS_Simplification_Service(ABC):
-
-    def __init__(self, model_name, factor = 1.5, output_base_path='', config_path='utils/config.json'):
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        self.model_name = model_name
-        self.output_base_path = output_base_path
-        #self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
-        #self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
-        self.tokenizer = None
-        self.original_model = None
-        self.simplified_model = None
-        self.factor = factor
-        self.layers = {}
-
     @abstractmethod
     def _get_mutual_information_metrics(self):
         pass
