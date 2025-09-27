@@ -19,7 +19,6 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
-        self.original_model = None
 
     def _get_mutual_information_metrics(self):
         print("Getting NMI metrics...")
