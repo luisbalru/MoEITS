@@ -25,7 +25,6 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         num_layers = len(self.original_model.model.layers)
         for i in range(num_layers):
             experts = self.original_model.model.layers[i].block_sparse_moe.experts
-            print(experts)
             nmi = self._calculate_NMI_experts(experts)
             self.layers['L_'+str(i)] = nmi
     
