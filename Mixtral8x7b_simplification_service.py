@@ -16,7 +16,6 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
         #self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
         self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'])
-        print(self.original_model)
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
