@@ -34,9 +34,9 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         for i, e1 in enumerate(experts):
             for j, e2 in enumerate(experts):
                 if i<j:
-                    w1_info = compute_information_measures(experts[e1].w1.weight.detach().numpy(), experts[e2].w1.weight.detach().numpy())['NMI']
-                    w2_info = compute_information_measures(experts[e1].w2.weight.detach().numpy(), experts[e2].w2.weight.detach().numpy())['NMI']
-                    w3_info = compute_information_measures(experts[e1].w3.weight.detach().numpy(), experts[e2].w3.weight.detach().numpy())['NMI']
+                    w1_info = compute_information_measures(experts[i].w1.weight.detach().numpy(), experts[j].w1.weight.detach().numpy())['NMI']
+                    w2_info = compute_information_measures(experts[i].w2.weight.detach().numpy(), experts[j].w2.weight.detach().numpy())['NMI']
+                    w3_info = compute_information_measures(experts[i].w3.weight.detach().numpy(), experts[j].w3.weight.detach().numpy())['NMI']
                     results[i,j] = (w1_info+w2_info+w3_info)/3
                     results[j,i] = (w1_info+w2_info+w3_info)/3
         
