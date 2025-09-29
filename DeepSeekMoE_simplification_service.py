@@ -1,0 +1,91 @@
+from MoEITS_simplification_service import MoEITS_Simplification_Service
+from transformers import AutoTokenizer, MixtralForCausalLM, MixtralConfig, AutoModelForCausalLM
+import json
+import numpy as np
+from utils import compute_information_measures
+import torch
+
+
+
+
+class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
+    def __init__(self, model_name, factor=1.5, output_base_path='', config_path='utils/config.json'):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        self.model_name = model_name
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
+        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
+        self.layers = {}
+        self.factor = factor
+        self.output_base_path = output_base_path
+
+    def _get_mutual_information_metrics(self):
+        print("Getting NMI metrics...")
+        num_layers = len(self.original_model.model.layers)
+        for i in range(1, num_layers):
+            experts = self.original_model.model.layers[i].mlp.experts
+            nmi = self._calculate_NMI_experts(experts)
+            self.layers['L_'+str(i)] = nmi
+    
+    def _calculate_NMI_experts(self, experts):
+        results = np.zeros((len(experts), len(experts)))
+        for i, e1 in enumerate(experts):
+            for j, e2 in enumerate(experts):
+                if i<j:
+                    gate_info = compute_information_measures(experts[i].gate_proj.weight.detach().numpy(), experts[j].gate_proj.weight.detach().numpy())['NMI']
+                    up_info = compute_information_measures(experts[i].up_proj.weight.detach().numpy(), experts[j].up_proj.weight.detach().numpy())['NMI']
+                    down_info = compute_information_measures(experts[i].down_proj.weight.detach().numpy(), experts[j].down_proj.weight.detach().numpy())['NMI']
+                    results[i,j] = (gate_info+up_info+down_info)/3
+                    results[j,i] = (gate_info+up_info+down_info)/3
+        
+        return results
+
+    def _build_simplified_model(self, num_experts, name_experts):
+        self.simplified_model = MixtralForCausalLM(MixtralConfig(max_position_embeddings=32768, name_experts_by_block=name_experts, num_experts_by_block=num_experts))
+
+    def _set_weights_to_new_model(self, names):
+        print("Embedding tokens")
+        self.simplified_model.model.embed_tokens.weight = self.original_model.model.embed_tokens.weight
+        print("Layers")
+
+        self.simplified_model.model.layers[0].self_attn.q_proj.weight = self.original_model.model.layers[0].self_attn.q_proj.weight
+        self.simplified_model.model.layers[0].self_attn.k_proj.weight = self.original_model.model.layers[0].self_attn.k_proj.weight
+        self.simplified_model.model.layers[0].self_attn.v_proj.weight = self.original_model.model.layers[0].self_attn.v_proj.weight
+        self.simplified_model.model.layers[0].self_attn.o_proj.weight = self.original_model.model.layers[0].self_attn.o_proj.weight
+        self.simplified_model.model.layers[0].self_attn.rotary_emb.weight = self.original_model.model.layers[0].self_attn.rotary_emb.weight
+
+        self.simplified_model.model.layers[0].mlp.gate_proj.weight = self.original_model.model.layers[0].mlp.gate_proj.weight
+        self.simplified_model.model.layers[0].mlp.up_proj.weight = self.original_model.model.layers[0].mlp.up_proj.weight
+        self.simplified_model.model.layers[0].mlp.down_proj.weight = self.original_model.model.layers[0].mlp.down_proj.weight
+
+        self.simplified_model.model.layers[0].input_layernorm.weight = self.original_model.model.layers[0].input_layernorm.weight
+        self.simplified_model.model.layers[0].post_attention_layernorm.weight = self.original_model.model.layers[0].post_attention_layernorm.weight
+
+
+        for i in range(1, len(self.original_model.model.layers)):
+            names_experts = names[i]
+            self.simplified_model.model.layers[i].self_attn.q_proj.weight = self.original_model.model.layers[i].self_attn.q_proj.weight
+            self.simplified_model.model.layers[i].self_attn.k_proj.weight = self.original_model.model.layers[i].self_attn.k_proj.weight
+            self.simplified_model.model.layers[i].self_attn.v_proj.weight = self.original_model.model.layers[i].self_attn.v_proj.weight
+            self.simplified_model.model.layers[i].self_attn.o_proj.weight = self.original_model.model.layers[i].self_attn.o_proj.weight
+            self.simplified_model.model.layers[i].self_attn.rotary_emb.weight = self.original_model.model.layers[i].self_attn.rotary_emb.weight
+
+            self.simplified_model.model.layers[i].mlp.gate.weight = torch.nn.Parameter(self.original_model.model.layers[i].mlp.gate.weight[names_experts,:])
+
+            self.simplified_model.model.layers[i].mlp.shared_experts.gate_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.gate_proj.weight
+            self.simplified_model.model.layers[i].mlp.shared_experts.up_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.up_proj.weight
+            self.simplified_model.model.layers[i].mlp.shared_experts.down_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.down_proj.weight
+
+            self.simplified_model.model.layers[i].mlp.input_layernorm.weight = self.original_model.model.layers[i].mlp.input_layernorm.weight
+            self.simplified_model.model.layers[i].mlp.post_attention_layernorm.weight = self.original_model.model.layers[i].mlp.post_attention_layernorm.weight
+        
+        self.simplified_model.model.norm.weight = self.original_model.model.norm.weight
+
+ 
+    def _set_weights_to_experts(self, names):
+        for i in range(len(names)):
+            names_experts = names[i]
+            for j, e in enumerate(names_experts):
+                self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight = self.original_model.model.layers[i].mlp.experts[j].gate_proj.weight
+                self.simplified_model.model.layers[i].mlp.experts[j].up_proj.weight = self.original_model.model.layers[i].mlp.experts[j].up_proj.weight
+                self.simplified_model.model.layers[i].mlp.experts[j].down_proj.weight = self.original_model.model.layers[i].mlp.experts[j].down_proj.weight
