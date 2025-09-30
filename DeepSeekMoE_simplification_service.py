@@ -32,6 +32,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
         for i, e1 in enumerate(experts):
             for j, e2 in enumerate(experts):
                 if i<j:
+                    print(experts[i].gate_proj.weight)
                     gate_info = compute_information_measures(experts[i].gate_proj.weight.detach().numpy(), experts[j].gate_proj.weight.detach().numpy())['NMI']
                     up_info = compute_information_measures(experts[i].up_proj.weight.detach().numpy(), experts[j].up_proj.weight.detach().numpy())['NMI']
                     down_info = compute_information_measures(experts[i].down_proj.weight.detach().numpy(), experts[j].down_proj.weight.detach().numpy())['NMI']
