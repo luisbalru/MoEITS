@@ -86,6 +86,6 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
         for i in range(len(names)):
             names_experts = names[i]
             for j, e in enumerate(names_experts):
-                self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight = self.original_model.model.layers[i].mlp.experts[j].gate_proj.weight
-                self.simplified_model.model.layers[i].mlp.experts[j].up_proj.weight = self.original_model.model.layers[i].mlp.experts[j].up_proj.weight
-                self.simplified_model.model.layers[i].mlp.experts[j].down_proj.weight = self.original_model.model.layers[i].mlp.experts[j].down_proj.weight
+                self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight = self.original_model.model.layers[i].mlp.experts[e].gate_proj.weight
+                self.simplified_model.model.layers[i].mlp.experts[j].up_proj.weight = self.original_model.model.layers[i].mlp.experts[e].up_proj.weight
+                self.simplified_model.model.layers[i].mlp.experts[j].down_proj.weight = self.original_model.model.layers[i].mlp.experts[e].down_proj.weight
