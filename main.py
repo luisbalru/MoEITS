@@ -11,7 +11,7 @@ model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-moe-16b-base"
 config = model.config
 
 # 2. Instantiate the model from the configuration object 🏗️
-model = DeepseekV2ForCausalLM(config)
+model = DeepseekV3ForCausalLM(config)
 
 # You now have the model architecture built in memory.
 print(model)
