@@ -38,7 +38,7 @@ config = DeepseekV2Config(
 )
 
 # 2. Instantiate the model from the configuration object 🏗️
-model = DeepSeekV2ForCausalLM(config)
+model = DeepseekV2ForCausalLM(config)
 
 # You now have the model architecture built in memory.
 print(model)
