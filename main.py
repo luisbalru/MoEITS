@@ -3,11 +3,11 @@ from Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Servic
 from DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
 import numpy as np
 from transformers import AutoTokenizer, MixtralForCausalLM, MixtralConfig, DeepseekV3ForCausalLM,DeepseekV3Config
-from transformers import DeepSeekV2Config, DeepSeekV2ForCausalLM
+from transformers import DeepseekV2Config, DeepseekV2ForCausalLM
 
 # 1. Define the configuration for deepseek-moe-16b
 # These parameters are taken directly from the model's official config.json file.
-config = DeepSeekV2Config(
+config = DeepseekV2Config(
     # Core Architecture
     hidden_size=5120,
     intermediate_size=14336,
