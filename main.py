@@ -2,11 +2,12 @@
 from Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
 from DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
 import numpy as np
-from transformers import AutoTokenizer, MixtralForCausalLM, MixtralConfig, DeepseekV3ForCausalLM,DeepseekV3Config
+from transformers import AutoTokenizer, AutoModelForCausalLM, MixtralForCausalLM, MixtralConfig, DeepseekV3ForCausalLM,DeepseekV3Config
 from transformers import DeepseekV2Config, DeepseekV2ForCausalLM
 
 # 1. Define the configuration for deepseek-moe-16b
 # These parameters are taken directly from the model's official config.json file.
+"""
 config = DeepseekV2Config(
     # Core Architecture
     hidden_size=5120,
@@ -43,7 +44,10 @@ model = DeepseekV2ForCausalLM(config)
 # You now have the model architecture built in memory.
 print(model)
 print(f"Total parameters: {model.num_parameters() / 1e9:.2f}B")
-
+"""
+model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-moe-16b-base", trust_remote_code=True, torch_dtype="auto")
+print(model)
+print(model.config)
 
 """
 #moe_simp_service = Mixtral8x7b_Simplification_Service("mistralai/Mixtral-8x7B-Instruct-v0.1")
