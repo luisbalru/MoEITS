@@ -21,7 +21,33 @@ print(model)
 print(f"Total parameters: {model.num_parameters() / 1e9:.2f}B")
 """
 
-model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64, hidden_size=2048,n_shared_experts=2, num_hidden_layers=28, num_attention_head=16, num_experts_per_tok=6, first_k_dense_replace=1))
+model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
+                                           hidden_size=2048,
+                                           n_shared_experts=2, 
+                                           num_hidden_layers=28, 
+                                           num_experts_per_tok=6, 
+                                           first_k_dense_replace=1,
+                                           attention_bias=False,
+                                           attention_dropout=0.0
+                                           bos_token_id=100000,
+                                           eos_token_id=100001,
+                                           hidden_act='silu',
+                                           initializer_range=0.02,
+                                           intermediate_size=10944,
+                                           max_position_embeddings=4096,
+                                           moe_intermediate_size=1408,
+                                           moe_layer_freq=1,
+                                           norm_topk_prob=False
+                                           num_attention_heads=16,
+                                           num_key_value_heads=16,
+                                           pretraining_tp=1,
+                                           rms_norm_eps=1e-06,
+                                           rope_scaling=None,
+                                           rope_theta=10000,
+                                           scoring_func='softmax',
+                                           tie_word_embeddings=False
+                                           use_cache=True,
+                                           vocab_size=102400))
 
 print(f"Total parameters: {model.num_parameters()}")
 
