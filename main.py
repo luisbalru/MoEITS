@@ -1,10 +1,13 @@
 #from MoEITS_simplification_service import MoEITS_Simplification_Service
-from Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
-from DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
+#from Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
+#from DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
 import numpy as np
 from transformers import AutoTokenizer, AutoModelForCausalLM, MixtralForCausalLM, MixtralConfig, DeepseekV3ForCausalLM,DeepseekV3Config
 from transformers import DeepseekV2Config, DeepseekV2ForCausalLM
+from models.deepseek_moe_16b.modeling_deepseek import DeepseekForCausalLM
+from models.deepseek_moe_16b.configuration_deepseek import DeepseekConfig
 
+"""
 # 1. Define the configuration for deepseek-moe-16b
 # These parameters are taken directly from the model's official config.json file.
 model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-moe-16b-base", trust_remote_code=True, torch_dtype="auto")
@@ -16,7 +19,10 @@ model = DeepseekV3ForCausalLM(config)
 # You now have the model architecture built in memory.
 print(model)
 print(f"Total parameters: {model.num_parameters() / 1e9:.2f}B")
+"""
 
+model = DeepseekForCausalLM(DeepseekConfig())
+print(model)
 
 
 """
