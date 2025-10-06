@@ -28,7 +28,7 @@ model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
                                            num_experts_per_tok=6, 
                                            first_k_dense_replace=1,
                                            attention_bias=False,
-                                           attention_dropout=0.0
+                                           attention_dropout=0.0,
                                            bos_token_id=100000,
                                            eos_token_id=100001,
                                            hidden_act='silu',
