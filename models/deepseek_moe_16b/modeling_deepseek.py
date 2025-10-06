@@ -283,7 +283,7 @@ class MoEGate(nn.Module):
         self.config = config
         self.top_k = config.num_experts_per_tok
         if config.num_experts_by_block:
-            self.n_routed_experts = config.num_experts_by_block[layer_idx]
+            self.n_routed_experts = config.num_experts_by_block[layer_idx-1]
         else:
             self.n_routed_experts = config.n_routed_experts
 
