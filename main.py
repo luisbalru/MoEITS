@@ -51,10 +51,12 @@ model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
                                            use_cache=True,
                                            vocab_size=102400))
 
+
+print(model)
 print(f"Total parameters: {model.num_parameters()}")
 
-model2 = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-moe-16b-base", trust_remote_code=True, torch_dtype="auto")
-print(f"Total parameters from_pretrained: {model2.num_parameters()}")
+#model2 = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-moe-16b-base", trust_remote_code=True, torch_dtype="auto")
+#print(f"Total parameters from_pretrained: {model2.num_parameters()}")
 
 
 """
