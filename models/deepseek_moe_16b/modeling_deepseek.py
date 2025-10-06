@@ -370,7 +370,7 @@ class DeepseekMoE(nn.Module):
         self.config = config
         self.num_experts_per_tok = config.num_experts_per_tok
         if config.num_experts_by_block:
-            self.experts = nn.ModuleList([DeepseekMLP(config, intermediate_size = config.moe_intermediate_size) for i in range(config.num_experts_by_block[layer_idx])])
+            self.experts = nn.ModuleList([DeepseekMLP(config, intermediate_size = config.moe_intermediate_size) for i in range(config.num_experts_by_block[layer_idx-1])])
             self.gate = MoEGate(config, layer_idx)
         else:
             self.experts = nn.ModuleList([DeepseekMLP(config, intermediate_size = config.moe_intermediate_size) for i in range(config.n_routed_experts)])
