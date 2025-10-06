@@ -21,7 +21,7 @@ print(model)
 print(f"Total parameters: {model.num_parameters() / 1e9:.2f}B")
 """
 
-model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64, hidden_size=2048))
+model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64, hidden_size=2048,shared_experts=2, num_attention_head=16, num_experts_per_tok=6, first_k_dense_replace=1))
 print(model)
 
 
