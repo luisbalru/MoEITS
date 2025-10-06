@@ -20,8 +20,10 @@ model = DeepseekV3ForCausalLM(config)
 print(model)
 print(f"Total parameters: {model.num_parameters() / 1e9:.2f}B")
 """
-
+num_experts = list(np.arange(64,64-26,-1))
+# DEFINICIÓN EXACTO DE deepseek-ai/deepseek-moe-16b-base
 model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
+                                           num_experts_by_block=num_experts
                                            hidden_size=2048,
                                            n_shared_experts=2, 
                                            num_hidden_layers=28, 
