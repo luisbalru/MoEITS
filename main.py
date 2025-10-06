@@ -22,8 +22,11 @@ print(f"Total parameters: {model.num_parameters() / 1e9:.2f}B")
 """
 
 model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64, hidden_size=2048,n_shared_experts=2, num_hidden_layers=28, num_attention_head=16, num_experts_per_tok=6, first_k_dense_replace=1))
-print(model)
+
 print(f"Total parameters: {model.num_parameters()}")
+
+model2 = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-moe-16b-base", trust_remote_code=True, torch_dtype="auto")
+print(f"Total parameters from_pretrained: {model2.num_parameters()}")
 
 
 """
