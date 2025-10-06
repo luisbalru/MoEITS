@@ -45,7 +45,7 @@ model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
                                            rope_scaling=None,
                                            rope_theta=10000,
                                            scoring_func='softmax',
-                                           tie_word_embeddings=False
+                                           tie_word_embeddings=False,
                                            use_cache=True,
                                            vocab_size=102400))
 
