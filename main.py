@@ -37,7 +37,7 @@ model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
                                            max_position_embeddings=4096,
                                            moe_intermediate_size=1408,
                                            moe_layer_freq=1,
-                                           norm_topk_prob=False
+                                           norm_topk_prob=False,
                                            num_attention_heads=16,
                                            num_key_value_heads=16,
                                            pretraining_tp=1,
