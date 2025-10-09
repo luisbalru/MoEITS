@@ -1,5 +1,7 @@
 from MoEITS_simplification_service import MoEITS_Simplification_Service
-from transformers import AutoTokenizer, MixtralForCausalLM, MixtralConfig, AutoModelForCausalLM
+from models.deepseek_moe_16b.modeling_deepseek import DeepseekForCausalLM
+from models.deepseek_moe_16b.configuration_deepseek import DeepseekConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np
 from utils import compute_information_measures
@@ -40,8 +42,35 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
         
         return results
 
-    def _build_simplified_model(self, num_experts, name_experts):
-        self.simplified_model = MixtralForCausalLM(MixtralConfig(max_position_embeddings=32768, name_experts_by_block=name_experts, num_experts_by_block=num_experts))
+    def _build_simplified_model(self, num_experts):
+        self.simplified_model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
+                                           num_experts_by_block=num_experts,
+                                           hidden_size=2048,
+                                           n_shared_experts=2, 
+                                           num_hidden_layers=28, 
+                                           num_experts_per_tok=6, 
+                                           first_k_dense_replace=1,
+                                           attention_bias=False,
+                                           attention_dropout=0.0,
+                                           bos_token_id=100000,
+                                           eos_token_id=100001,
+                                           hidden_act='silu',
+                                           initializer_range=0.02,
+                                           intermediate_size=10944,
+                                           max_position_embeddings=4096,
+                                           moe_intermediate_size=1408,
+                                           moe_layer_freq=1,
+                                           norm_topk_prob=False,
+                                           num_attention_heads=16,
+                                           num_key_value_heads=16,
+                                           pretraining_tp=1,
+                                           rms_norm_eps=1e-06,
+                                           rope_scaling=None,
+                                           rope_theta=10000,
+                                           scoring_func='softmax',
+                                           tie_word_embeddings=False,
+                                           use_cache=True,
+                                           vocab_size=102400))
 
     def _set_weights_to_new_model(self, names):
         print("Embedding tokens")
