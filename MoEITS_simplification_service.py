@@ -66,5 +66,5 @@ class MoEITS_Simplification_Service(ABC):
         self._get_mutual_information_metrics()
         num_experts, name_experts = self._simplify_model()
         self._build_simplified_model(num_experts, name_experts)
-        #self._set_weights_to_simplified_model(name_experts)
+        self._set_weights_to_simplified_model(name_experts)
         return self.simplified_model
