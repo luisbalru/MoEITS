@@ -105,8 +105,8 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
             self.simplified_model.model.layers[i].mlp.shared_experts.up_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.up_proj.weight
             self.simplified_model.model.layers[i].mlp.shared_experts.down_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.down_proj.weight
 
-            self.simplified_model.model.layers[i].mlp.input_layernorm.weight = self.original_model.model.layers[i].mlp.input_layernorm.weight
-            self.simplified_model.model.layers[i].mlp.post_attention_layernorm.weight = self.original_model.model.layers[i].mlp.post_attention_layernorm.weight
+            self.simplified_model.model.layers[i].input_layernorm.weight = self.original_model.model.layers[i].input_layernorm.weight
+            self.simplified_model.model.layers[i].post_attention_layernorm.weight = self.original_model.model.layers[i].post_attention_layernorm.weight
         
         self.simplified_model.model.norm.weight = self.original_model.model.norm.weight
 
