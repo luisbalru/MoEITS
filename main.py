@@ -1,10 +1,6 @@
-from MoEITS_simplification_service import MoEITS_Simplification_Service
 from Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
 from DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
 import numpy as np
-from transformers import AutoTokenizer, AutoModelForCausalLM, MixtralForCausalLM, MixtralConfig
-from models.deepseek_moe_16b.modeling_deepseek import DeepseekForCausalLM
-from models.deepseek_moe_16b.configuration_deepseek import DeepseekConfig
 
 
 def count_trainable_parameters(model):
@@ -18,3 +14,4 @@ if __name__ == '__main__':
     simplified_deepseek_moe = deepseek_simp_service.simplify_original_model()
     print(simplified_deepseek_moe)
     print(f"Params: {count_trainable_parameters(simplified_deepseek_moe)}")
+    simplified_deepseek_moe.save_pretrained('simplified_models/deepseek-moe-16b/')
