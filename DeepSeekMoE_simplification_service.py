@@ -112,8 +112,8 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
 
  
     def _set_weights_to_experts(self, names):
-        for i in range(len(names)):
-            names_experts = names[i]
+        for i in range(1, 28):
+            names_experts = names[i-1]
             for j, e in enumerate(names_experts):
                 self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight = self.original_model.model.layers[i].mlp.experts[e].gate_proj.weight
                 self.simplified_model.model.layers[i].mlp.experts[j].up_proj.weight = self.original_model.model.layers[i].mlp.experts[e].up_proj.weight
