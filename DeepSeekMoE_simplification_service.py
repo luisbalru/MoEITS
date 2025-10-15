@@ -81,7 +81,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
         self.simplified_model.model.layers[0].self_attn.k_proj.weight = self.original_model.model.layers[0].self_attn.k_proj.weight
         self.simplified_model.model.layers[0].self_attn.v_proj.weight = self.original_model.model.layers[0].self_attn.v_proj.weight
         self.simplified_model.model.layers[0].self_attn.o_proj.weight = self.original_model.model.layers[0].self_attn.o_proj.weight
-        self.simplified_model.model.layers[0].self_attn.rotary_emb.weight = self.original_model.model.layers[0].self_attn.rotary_emb.weight
+        #self.simplified_model.model.layers[0].self_attn.rotary_emb.weight = self.original_model.model.layers[0].self_attn.rotary_emb.weight
 
         self.simplified_model.model.layers[0].mlp.gate_proj.weight = self.original_model.model.layers[0].mlp.gate_proj.weight
         self.simplified_model.model.layers[0].mlp.up_proj.weight = self.original_model.model.layers[0].mlp.up_proj.weight
@@ -97,7 +97,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
             self.simplified_model.model.layers[i].self_attn.k_proj.weight = self.original_model.model.layers[i].self_attn.k_proj.weight
             self.simplified_model.model.layers[i].self_attn.v_proj.weight = self.original_model.model.layers[i].self_attn.v_proj.weight
             self.simplified_model.model.layers[i].self_attn.o_proj.weight = self.original_model.model.layers[i].self_attn.o_proj.weight
-            self.simplified_model.model.layers[i].self_attn.rotary_emb.weight = self.original_model.model.layers[i].self_attn.rotary_emb.weight
+            #self.simplified_model.model.layers[i].self_attn.rotary_emb.weight = self.original_model.model.layers[i].self_attn.rotary_emb.weight
 
             self.simplified_model.model.layers[i].mlp.gate.weight = torch.nn.Parameter(self.original_model.model.layers[i].mlp.gate.weight[names_experts,:])
 
