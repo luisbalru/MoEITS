@@ -112,6 +112,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
 
  
     def _set_weights_to_experts(self, names):
+        # First layer doesn't have experts and the 27 following ones do have
         for i in range(1, 28):
             names_experts = names[i-1]
             for j, e in enumerate(names_experts):
