@@ -42,7 +42,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
         
         return results
 
-    def _build_simplified_model(self, num_experts, name_experts):
+    def _build_simplified_model(self, num_experts):
         self.simplified_model = DeepseekForCausalLM(DeepseekConfig(n_routed_experts=64,
                                            num_experts_by_block=num_experts,
                                            hidden_size=2048,
