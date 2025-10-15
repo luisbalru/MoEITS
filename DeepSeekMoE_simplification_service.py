@@ -92,7 +92,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
 
 
         for i in range(1, len(self.original_model.model.layers)):
-            names_experts = names[i]
+            names_experts = names[i-1]
             self.simplified_model.model.layers[i].self_attn.q_proj.weight = self.original_model.model.layers[i].self_attn.q_proj.weight
             self.simplified_model.model.layers[i].self_attn.k_proj.weight = self.original_model.model.layers[i].self_attn.k_proj.weight
             self.simplified_model.model.layers[i].self_attn.v_proj.weight = self.original_model.model.layers[i].self_attn.v_proj.weight
