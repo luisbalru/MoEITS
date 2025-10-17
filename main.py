@@ -10,7 +10,7 @@ def count_trainable_parameters(model):
 
 
 if __name__ == '__main__':
-    deepseek_simp_service = DeepSeekMoE_Simplification_Service('deepseek-ai/deepseek-moe-16b-base', factor=3)
+    deepseek_simp_service = DeepSeekMoE_Simplification_Service('deepseek-ai/deepseek-moe-16b-base', factor=1)
     simplified_deepseek_moe = deepseek_simp_service.simplify_original_model()
     print(simplified_deepseek_moe)
     print(f"Params: {count_trainable_parameters(simplified_deepseek_moe)}")
