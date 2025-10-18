@@ -12,7 +12,7 @@ def count_trainable_parameters(model):
 
 if __name__ == '__main__':
     model_name = sys.argv[1]
-    factor = sys.argv[2]
+    factor = float(sys.argv[2])
 
     if 'deepseek' in model_name:
         deepseek_simp_service = DeepSeekMoE_Simplification_Service('deepseek-ai/deepseek-moe-16b-base', factor=factor)
