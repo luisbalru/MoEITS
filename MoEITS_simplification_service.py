@@ -71,6 +71,6 @@ class MoEITS_Simplification_Service(ABC):
         #num_experts = [35]*28
         #name_experts = [list(np.arange(0,35))]*28
         
-        self._build_simplified_model(num_experts)
+        self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
         return self.simplified_model
