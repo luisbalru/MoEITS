@@ -1262,7 +1262,7 @@ class DeepseekModel(DeepseekPreTrainedModel):
         )
 
 
-class DeepseekForCausalLM(DeepseekPreTrainedModel):
+class DeepseekForCausalLM(DeepseekPreTrainedModel, GenerationMixin):
     _tied_weights_keys = ["lm_head.weight"]
 
     def __init__(self, config):
