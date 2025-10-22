@@ -109,6 +109,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
             self.simplified_model.model.layers[i].post_attention_layernorm.weight = self.original_model.model.layers[i].post_attention_layernorm.weight
         
         self.simplified_model.model.norm.weight = self.original_model.model.norm.weight
+        self.simplified_model.lm_head.weight = self.original_model.lm_head.weight
 
  
     def _set_weights_to_experts(self, names):
