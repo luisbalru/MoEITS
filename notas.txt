@@ -1,0 +1,9 @@
+DeepSeek
+        Factor 3   -> 15908476928 params
+        Factor 1.5 -> 13528956928 params
+        Factor 1   -> 11763785728 params
+        Factor 0.75 -> 10509129728 params
+        Factor 0.5 -> 9133334528 params
+        Factor 0.25 -> 7679664128 params
+        Factor 0.15 -> 7073968128 params
+        Factor 0.05 -> 6442313728 params

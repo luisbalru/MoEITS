@@ -16,7 +16,7 @@ class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
             config = json.load(f)
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
-        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, dtype="auto")
+        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'], trust_remote_code=True, torch_dtype=torch.bfloat16, device_map="auto")
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
