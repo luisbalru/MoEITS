@@ -523,7 +523,7 @@ class DeepseekV2MoE(nn.Module):
     A mixed expert module containing shared experts.
     """
 
-    def __init__(self, config):
+    def __init__(self, config, layer_idx = None):
         super().__init__()
         self.config = config
         self.num_experts_per_tok = config.num_experts_per_tok
@@ -1204,15 +1204,27 @@ class DeepseekV2DecoderLayer(nn.Module):
             config=config, layer_idx=layer_idx
         )
 
-        self.mlp = (
-            DeepseekV2MoE(config)
-            if (
-                config.n_routed_experts is not None
-                and layer_idx >= config.first_k_dense_replace
-                and layer_idx % config.moe_layer_freq == 0
+        if config.num_experts_by_block:
+            self.mlp = (
+                DeepseekV2MoE(config, layer_idx)
+                if (
+                    config.n_routed_experts is not None
+                    and layer_idx >= config.first_k_dense_replace
+                    and layer_idx % config.moe_layer_freq == 0
+                )
+                else DeepseekV2MLP(config)
             )
-            else DeepseekV2MLP(config)
-        )
+
+        else:
+            self.mlp = (
+                DeepseekV2MoE(config)
+                if (
+                    config.n_routed_experts is not None
+                    and layer_idx >= config.first_k_dense_replace
+                    and layer_idx % config.moe_layer_freq == 0
+                )
+                else DeepseekV2MLP(config)
+            )
         self.input_layernorm = DeepseekV2RMSNorm(
             config.hidden_size, eps=config.rms_norm_eps
         )
