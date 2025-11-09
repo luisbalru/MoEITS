@@ -551,7 +551,6 @@ class DeepseekV2MoE(nn.Module):
                     ]
                 )
             else:
-                print("Entra DeepseekV2MoE")
                 self.ep_size = 1
                 self.experts_per_rank = config.n_routed_experts
                 self.ep_rank = 0
@@ -563,8 +562,6 @@ class DeepseekV2MoE(nn.Module):
                         for i in range(config.num_experts_by_block[layer_idx-1])
                     ]
                 )
-                print(self.experts)
-                input()
             self.gate = MoEGate(config, layer_idx)
         else:
             if hasattr(config, "ep_size") and config.ep_size > 1:
@@ -1244,7 +1241,6 @@ class DeepseekV2DecoderLayer(nn.Module):
         )
 
         if config.num_experts_by_block:
-            print("Entra DeepseekV2DecoderLayer")
             self.mlp = (
                 DeepseekV2MoE(config, layer_idx)
                 if (
