@@ -391,11 +391,14 @@ class DeepseekV2MLP(nn.Module):
 
 
 class MoEGate(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, layer_idx = None):
         super().__init__()
         self.config = config
         self.top_k = config.num_experts_per_tok
-        self.n_routed_experts = config.n_routed_experts
+        if config.num_experts_by_block:
+            self.n_routed_experts = config.num_experts_by_block[layer_idx-1]
+        else:
+            self.n_routed_experts = config.n_routed_experts
         self.routed_scaling_factor = config.routed_scaling_factor
         self.scoring_func = config.scoring_func
         self.alpha = config.aux_loss_alpha
@@ -528,37 +531,70 @@ class DeepseekV2MoE(nn.Module):
         self.config = config
         self.num_experts_per_tok = config.num_experts_per_tok
 
-        if hasattr(config, "ep_size") and config.ep_size > 1:
-            assert config.ep_size == dist.get_world_size()
-            self.ep_size = config.ep_size
-            self.experts_per_rank = config.n_routed_experts // config.ep_size
-            self.ep_rank = dist.get_rank()
-            self.experts = nn.ModuleList(
-                [
-                    (
+        if config.num_experts_by_block:
+            if hasattr(config, "ep_size") and config.ep_size > 1:
+                assert config.ep_size == dist.get_world_size()
+                self.ep_size = config.ep_size
+                self.experts_per_rank = config.n_routed_experts // config.ep_size
+                self.ep_rank = dist.get_rank()
+                self.experts = nn.ModuleList(
+                    [
+                        (
+                            DeepseekV2MLP(
+                                config, intermediate_size=config.moe_intermediate_size
+                            )
+                            if i >= self.ep_rank * self.experts_per_rank
+                            and i < (self.ep_rank + 1) * self.experts_per_rank
+                            else None
+                        )
+                        for i in range(config.num_experts_by_block[layer_idx-1])
+                    ]
+                )
+            else:
+                self.ep_size = 1
+                self.experts_per_rank = config.n_routed_experts
+                self.ep_rank = 0
+                self.experts = nn.ModuleList(
+                    [
                         DeepseekV2MLP(
                             config, intermediate_size=config.moe_intermediate_size
                         )
-                        if i >= self.ep_rank * self.experts_per_rank
-                        and i < (self.ep_rank + 1) * self.experts_per_rank
-                        else None
-                    )
-                    for i in range(config.n_routed_experts)
-                ]
-            )
+                        for i in range(config.num_experts_by_block[layer_idx-1])
+                    ]
+                )
+            self.gate = MoEGate(config, layer_idx)
         else:
-            self.ep_size = 1
-            self.experts_per_rank = config.n_routed_experts
-            self.ep_rank = 0
-            self.experts = nn.ModuleList(
-                [
-                    DeepseekV2MLP(
-                        config, intermediate_size=config.moe_intermediate_size
-                    )
-                    for i in range(config.n_routed_experts)
-                ]
-            )
-        self.gate = MoEGate(config)
+            if hasattr(config, "ep_size") and config.ep_size > 1:
+                assert config.ep_size == dist.get_world_size()
+                self.ep_size = config.ep_size
+                self.experts_per_rank = config.n_routed_experts // config.ep_size
+                self.ep_rank = dist.get_rank()
+                self.experts = nn.ModuleList(
+                    [
+                        (
+                            DeepseekV2MLP(
+                                config, intermediate_size=config.moe_intermediate_size
+                            )
+                            if i >= self.ep_rank * self.experts_per_rank
+                            and i < (self.ep_rank + 1) * self.experts_per_rank
+                            else None
+                        )
+                        for i in range(config.n_routed_experts)
+                    ]
+                )
+            else:
+                self.ep_size = 1
+                self.experts_per_rank = config.n_routed_experts
+                self.ep_rank = 0
+                self.experts = nn.ModuleList(
+                    [
+                        DeepseekV2MLP(
+                            config, intermediate_size=config.moe_intermediate_size
+                        )
+                        for i in range(config.n_routed_experts)
+                    ]
+                )
+            self.gate = MoEGate(config)
         if config.n_shared_experts is not None:
             intermediate_size = config.moe_intermediate_size * config.n_shared_experts
             self.shared_experts = DeepseekV2MLP(
