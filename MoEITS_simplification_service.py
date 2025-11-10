@@ -68,7 +68,7 @@ class MoEITS_Simplification_Service(ABC):
         
         #Simulation
         print("Simulating pruning process...")
-        num_experts = list(np.random.randint(1, 64, size=26))
+        num_experts = np.random.randint(1, 64, size=26).tolist()
         name_experts = []
         for n in num_experts:
             name_experts.append(list(range(0, n)))
