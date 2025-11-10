@@ -46,6 +46,7 @@ class DeepSeekV2Lite_Simplification_Service(MoEITS_Simplification_Service):
         return results
 
     def _build_simplified_model(self, num_experts, name_experts):
+        self.config_model['num_experts_by_block'] = num_experts
         self.simplified_model = DeepseekV2ForCausalLM(DeepseekV2Config(**self.config_model))
 
     def _set_weights_to_new_model(self, names):
