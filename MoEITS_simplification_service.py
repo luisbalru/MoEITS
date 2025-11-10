@@ -63,7 +63,7 @@ class MoEITS_Simplification_Service(ABC):
         self._set_weights_to_experts(name_experts)
 
     def simplify_original_model(self):
-        self._get_mutual_information_metrics()
+        #self._get_mutual_information_metrics()
         #num_experts, name_experts = self._simplify_model()
         
         #Simulation
