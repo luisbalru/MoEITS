@@ -64,12 +64,16 @@ class MoEITS_Simplification_Service(ABC):
 
     def simplify_original_model(self):
         self._get_mutual_information_metrics()
-        num_experts, name_experts = self._simplify_model()
+        #num_experts, name_experts = self._simplify_model()
         
         #Simulation
-        #print("Simulating pruning process...")
-        #num_experts = [35]*28
-        #name_experts = [list(np.arange(0,35))]*28
+        print("Simulating pruning process...")
+        num_experts = list(np.random.randint(1, 64, size=26))
+        name_experts = []
+        for n in num_experts:
+            name_experts.append(list(range(0, n)))
+
+
         
         self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
