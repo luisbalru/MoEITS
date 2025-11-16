@@ -166,6 +166,7 @@ class Qwen2MoeConfig(PreTrainedConfig):
         mlp_only_layers: Optional[bool] = None,
         qkv_bias: Optional[bool] = True,
         layer_types: Optional[list[str]] = None,
+        num_experts_by_block=None,
         **kwargs,
     ):
         self.layer_types = layer_types
@@ -174,6 +175,7 @@ class Qwen2MoeConfig(PreTrainedConfig):
         self.hidden_size = hidden_size
         self.intermediate_size = intermediate_size
         self.num_hidden_layers = num_hidden_layers
+        self.num_experts_by_block = num_experts_by_block
         self.num_attention_heads = num_attention_heads
         self.use_sliding_window = use_sliding_window
         self.sliding_window = sliding_window if use_sliding_window else 0
