@@ -1,6 +1,6 @@
 from MoEITS_simplification_service import MoEITS_Simplification_Service
-from models.deepseek_v2_lite.modeling_deepseek import DeepseekV2ForCausalLM
-from models.deepseek_v2_lite.configuration_deepseek import DeepseekV2Config
+from models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
+from models.qwen2_moe.configuration_qwen2_moe import Qwen2MoeConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np
@@ -47,7 +47,7 @@ class Qwen15MoE_Simplification_Service(MoEITS_Simplification_Service):
 
     def _build_simplified_model(self, num_experts, name_experts):
         self.config_model['num_experts_by_block'] = num_experts
-        self.simplified_model = DeepseekV2ForCausalLM(DeepseekV2Config(**self.config_model))
+        self.simplified_model = Qwen2MoeForCausalLM(Qwen2MoeConfig(**self.config_model))
 
     def _set_weights_to_new_model(self, names):
         print("Embedding tokens")
