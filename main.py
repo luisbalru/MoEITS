@@ -1,6 +1,7 @@
 from Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
 from DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
 from DeepSeekV2Lite_simplification_service import DeepSeekV2Lite_Simplification_Service
+from Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Service
 import numpy as np
 import sys
 
@@ -25,3 +26,9 @@ if __name__ == '__main__':
         simplified_mixtral = mixtral_simp_service.simplify_original_model()
         print(f"Params: {count_trainable_parameters(simplified_mixtral)}")
         simplified_mixtral.save_pretrained(f'simplified_models/mixtral_8x7b-f{factor}/')
+    elif 'qwen' in model_name:
+        qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
+        simplified_qwen = qwen_simp_service.simplify_original_model()
+        print(f"Params: {count_trainable_parameters(simplified_qwen)}")
+        simplified_qwen.save_pretrained(f'simplified_models/qwen2-moe-f{factor}/')
+
