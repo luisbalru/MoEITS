@@ -65,7 +65,7 @@ if is_flash_attn_2_available():
 
 # This makes `_prepare_4d_causal_attention_mask` a leaf function in the FX graph.
 # It means that the function will not be traced through and simply appear as a node in the graph.
-if is_torch_fx_available():
+if is_torch_available():
     if not is_torch_greater_or_equal_than_1_13:
         import torch.fx
 
