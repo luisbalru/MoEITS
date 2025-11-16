@@ -44,7 +44,7 @@ from transformers.modeling_outputs import (
 from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS, dynamic_rope_update
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import auto_docstring, can_return_tuple, is_torch_flex_attn_available, logging
-from transformers.tils.deprecation import deprecate_kwarg
+from transformers.utils.deprecation import deprecate_kwarg
 from .configuration_qwen2_moe import Qwen2MoeConfig
 
 
