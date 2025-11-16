@@ -10,7 +10,7 @@ import torch
 
 
 
-class Qwen15MoE_Simplification_Service(MoEITS_Simplification_Service):
+class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
     def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='utils/config.json'):
         with open(auth_path, 'r') as f:
             auth = json.load(f)
@@ -40,6 +40,7 @@ class Qwen15MoE_Simplification_Service(MoEITS_Simplification_Service):
                     up_info = compute_information_measures(experts[i].up_proj.weight.detach().cpu().float().numpy(), experts[j].up_proj.weight.detach().cpu().float().numpy())['NMI']
                     down_info = compute_information_measures(experts[i].down_proj.weight.detach().cpu().float().numpy(), experts[j].down_proj.weight.detach().cpu().float().numpy())['NMI']
                     # Weighting more up and down info in terms of redundancy
+                    # Revisar para QWen
                     results[i,j] = (gate_info*0.2+up_info*0.4+down_info*0.4)
                     results[j,i] = (gate_info*0.2+up_info*0.4+down_info*0.4)
         
