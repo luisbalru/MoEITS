@@ -18,8 +18,8 @@ from transformers.utils.import_utils import define_import_structure
 
 
 if TYPE_CHECKING:
-    from .configuration_qwen2_moe import *
-    from .modeling_qwen2_moe import *
+    from configuration_qwen2_moe import *
+    from modeling_qwen2_moe import *
 else:
     import sys
 
