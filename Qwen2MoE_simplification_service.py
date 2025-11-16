@@ -79,8 +79,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
 
  
     def _set_weights_to_experts(self, names):
-        # First layer doesn't have experts and the 27 following ones do have
-        for i in range(1, len(self.original_model.model.layers)):
+        for i in range(0, len(self.original_model.model.layers)):
             names_experts = names[i-1]
             for j, e in enumerate(names_experts):
                 self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight = self.original_model.model.layers[i].mlp.experts[e].gate_proj.weight
