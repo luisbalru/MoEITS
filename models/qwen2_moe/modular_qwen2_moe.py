@@ -25,29 +25,29 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from ...activations import ACT2FN
-from ...cache_utils import Cache, DynamicCache
-from ...generation import GenerationMixin
-from ...masking_utils import create_causal_mask, create_sliding_window_causal_mask
-from ...modeling_layers import (
+from transformers.activations import ACT2FN
+from transformers.cache_utils import Cache, DynamicCache
+from transformers.generation import GenerationMixin
+from transformers.masking_utils import create_causal_mask, create_sliding_window_causal_mask
+from transformers.modeling_layers import (
     GenericForQuestionAnswering,
     GenericForSequenceClassification,
     GenericForTokenClassification,
 )
-from ...modeling_outputs import MoeModelOutputWithPast
-from ...processing_utils import Unpack
-from ...utils import TransformersKwargs, auto_docstring
-from ...utils.generic import OutputRecorder, check_model_inputs
-from ..gemma.modeling_gemma import GemmaMLP
-from ..gemma2.modeling_gemma2 import Gemma2RotaryEmbedding
-from ..llama.modeling_llama import LlamaAttention, LlamaDecoderLayer, LlamaRMSNorm
-from ..mixtral.modeling_mixtral import (
+from transformers.modeling_outputs import MoeModelOutputWithPast
+from transformers.processing_utils import Unpack
+from transformers.utils import TransformersKwargs, auto_docstring
+from transformers.utils.generic import OutputRecorder, check_model_inputs
+from transformers.models.gemma.modeling_gemma import GemmaMLP
+from transformers.models.gemma2.modeling_gemma2 import Gemma2RotaryEmbedding
+from transformers.models.llama.modeling_llama import LlamaAttention, LlamaDecoderLayer, LlamaRMSNorm
+from transformers.models.mixtral.modeling_mixtral import (
     MixtralExperts,
     MixtralForCausalLM,
     MixtralModel,
     MixtralPreTrainedModel,
 )
-from .configuration_qwen2_moe import Qwen2MoeConfig
+from configuration_qwen2_moe import Qwen2MoeConfig
 
 
 class Qwen2MoeRMSNorm(LlamaRMSNorm):
