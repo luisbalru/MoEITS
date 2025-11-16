@@ -49,7 +49,7 @@ from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
 from transformers.processing_utils import Unpack
 from transformers.utils import TransformersKwargs, auto_docstring, can_return_tuple
 from transformers.utils.generic import OutputRecorder, check_model_inputs
-from configuration_qwen2_moe import Qwen2MoeConfig
+from .configuration_qwen2_moe import Qwen2MoeConfig
 
 
 @use_kernel_forward_from_hub("RMSNorm")
@@ -300,7 +300,7 @@ class Qwen2MoeExperts(nn.Module):
             self.num_experts = config.num_experts_by_block[layer_idx]
         else:
             self.num_experts = config.num_experts
-            
+
         self.hidden_dim = config.hidden_size
         self.intermediate_dim = config.moe_intermediate_size
         self.gate_up_proj = nn.Parameter(torch.empty(self.num_experts, 2 * self.intermediate_dim, self.hidden_dim))
