@@ -64,9 +64,9 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
 
             self.simplified_model.model.layers[i].mlp.gate.weight = torch.nn.Parameter(self.original_model.model.layers[i].mlp.gate.weight[names_experts,:])
 
-            self.simplified_model.model.layers[i].mlp.shared_experts.gate_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.gate_proj.weight
-            self.simplified_model.model.layers[i].mlp.shared_experts.up_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.up_proj.weight
-            self.simplified_model.model.layers[i].mlp.shared_experts.down_proj.weight = self.original_model.model.layers[i].mlp.shared_experts.down_proj.weight
+            self.simplified_model.model.layers[i].mlp.shared_expert.gate_proj.weight = self.original_model.model.layers[i].mlp.shared_expert.gate_proj.weight
+            self.simplified_model.model.layers[i].mlp.shared_expert.up_proj.weight = self.original_model.model.layers[i].mlp.shared_expert.up_proj.weight
+            self.simplified_model.model.layers[i].mlp.shared_expert.down_proj.weight = self.original_model.model.layers[i].mlp.shared_expert.down_proj.weight
 
             self.simplified_model.model.layers[i].mlp.shared_expert_gate.weight = self.original_model.model.layers[i].mlp.shared_expert_gate.weight
 
