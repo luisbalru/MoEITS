@@ -293,9 +293,14 @@ class Qwen2MoeAttention(nn.Module):
 class Qwen2MoeExperts(nn.Module):
     """Collection of expert weights stored as 3D tensors."""
 
-    def __init__(self, config):
+    def __init__(self, config, layer_idx = None):
         super().__init__()
-        self.num_experts = config.num_experts
+
+        if config.num_experts_by_block:
+            self.num_experts = config.num_experts_by_block[layer_idx]
+        else:
+            self.num_experts = config.num_experts
+            
         self.hidden_dim = config.hidden_size
         self.intermediate_dim = config.moe_intermediate_size
         self.gate_up_proj = nn.Parameter(torch.empty(self.num_experts, 2 * self.intermediate_dim, self.hidden_dim))
@@ -331,13 +336,19 @@ class Qwen2MoeExperts(nn.Module):
 
 
 class Qwen2MoeTopKRouter(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, layer_idx=None):
         super().__init__()
+
+        if config.num_experts_by_block:
+            self.num_experts = config.num_experts_by_block[layer_idx]
+        else:
+            self.num_experts = config.num_experts
+
         self.top_k = config.num_experts_per_tok
-        self.num_experts = config.num_experts
         self.norm_topk_prob = config.norm_topk_prob
         self.hidden_dim = config.hidden_size
-        self.weight = nn.Parameter(torch.zeros(self.num_experts, self.hidden_dim))
+        self.weight = nn.Parameter(torch.zeros(self.num_experts, self.hidden_dim))     
+        
 
     def forward(self, hidden_states):
         hidden_states = hidden_states.reshape(-1, self.hidden_dim)
@@ -352,10 +363,10 @@ class Qwen2MoeTopKRouter(nn.Module):
 
 
 class Qwen2MoeSparseMoeBlock(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, layer_idx = None):
         super().__init__()
-        self.gate = Qwen2MoeTopKRouter(config)
-        self.experts = Qwen2MoeExperts(config)
+        self.gate = Qwen2MoeTopKRouter(config, layer_idx)
+        self.experts = Qwen2MoeExperts(config, layer_idx)
         self.shared_expert = Qwen2MoeMLP(config, intermediate_size=config.shared_expert_intermediate_size)
         self.shared_expert_gate = torch.nn.Linear(config.hidden_size, 1, bias=False)
 
@@ -377,12 +388,22 @@ class Qwen2MoeDecoderLayer(GradientCheckpointingLayer):
     def __init__(self, config: Qwen2MoeConfig, layer_idx: int):
         super().__init__()
         self.self_attn = Qwen2MoeAttention(config, layer_idx)
-        if (layer_idx not in config.mlp_only_layers) and (
-            config.num_experts > 0 and (layer_idx + 1) % config.decoder_sparse_step == 0
-        ):
-            self.mlp = Qwen2MoeSparseMoeBlock(config)
+
+        if config.num_experts_by_block:
+            if (layer_idx not in config.mlp_only_layers) and (
+                config.num_experts > 0 and (layer_idx + 1) % config.decoder_sparse_step == 0
+            ):
+                self.mlp = Qwen2MoeSparseMoeBlock(config, layer_idx)
+            else:
+                self.mlp = Qwen2MoeMLP(config, intermediate_size=config.intermediate_size)
         else:
-            self.mlp = Qwen2MoeMLP(config, intermediate_size=config.intermediate_size)
+            if (layer_idx not in config.mlp_only_layers) and (
+                config.num_experts > 0 and (layer_idx + 1) % config.decoder_sparse_step == 0
+            ):
+                self.mlp = Qwen2MoeSparseMoeBlock(config)
+            else:
+                self.mlp = Qwen2MoeMLP(config, intermediate_size=config.intermediate_size)
+
         self.input_layernorm = Qwen2MoeRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.post_attention_layernorm = Qwen2MoeRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.hidden_size = config.hidden_size
