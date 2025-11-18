@@ -55,8 +55,8 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         self.simplified_model.model.embed_tokens.weight = self.original_model.model.embed_tokens.weight
         print("Layers")
 
-        for i in range(1, len(self.original_model.model.layers)):
-            names_experts = names[i-1]
+        for i in range(0, len(self.original_model.model.layers)):
+            names_experts = names[i]
             self.simplified_model.model.layers[0].self_attn.q_proj.weight = self.original_model.model.layers[0].self_attn.q_proj.weight
             self.simplified_model.model.layers[0].self_attn.k_proj.weight = self.original_model.model.layers[0].self_attn.k_proj.weight
             self.simplified_model.model.layers[0].self_attn.v_proj.weight = self.original_model.model.layers[0].self_attn.v_proj.weight
