@@ -11,7 +11,7 @@ def test_qwen_simplification_service():
     num_layers = len(simp_service.name_experts) == len(simp_model.model.layers)
 
     or_mod = simp_service.original_model
-    expert_names = simp_service.expert_names
+    expert_names = simp_service.name_experts
 
     same_weights = True
 
