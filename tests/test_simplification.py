@@ -1,6 +1,6 @@
-from ..src.DeepSeekV2Lite_simplification_service import DeepSeekV2Lite_Simplification_Service
-from ..src.Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
-from ..src.Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Service
+from moeits.DeepSeekV2Lite_simplification_service import DeepSeekV2Lite_Simplification_Service
+from moeits.Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification_Service
+from moeits.Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Service
 
 
 def test_qwen_simplification_service():
