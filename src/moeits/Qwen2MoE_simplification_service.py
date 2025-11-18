@@ -4,7 +4,7 @@ from moeits.models.qwen2_moe.configuration_qwen2_moe import Qwen2MoeConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np
-from utils import compute_information_measures
+from moeits.utils import compute_information_measures
 import torch
 
 
