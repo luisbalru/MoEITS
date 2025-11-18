@@ -8,3 +8,4 @@ accelerate
 datasets
 deepeval
 lm-format-enforcer
+pytest
