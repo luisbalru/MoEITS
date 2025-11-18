@@ -1,6 +1,6 @@
-from MoEITS_simplification_service import MoEITS_Simplification_Service
-from models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
-from models.qwen2_moe.configuration_qwen2_moe import Qwen2MoeConfig
+from moeits.MoEITS_simplification_service import MoEITS_Simplification_Service
+from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
+from moeits.models.qwen2_moe.configuration_qwen2_moe import Qwen2MoeConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np

@@ -1,6 +1,6 @@
-from MoEITS_simplification_service import MoEITS_Simplification_Service
-from models.deepseek_v2_lite.modeling_deepseek import DeepseekV2ForCausalLM
-from models.deepseek_v2_lite.configuration_deepseek import DeepseekV2Config
+from moeits.MoEITS_simplification_service import MoEITS_Simplification_Service
+from moeits.models.deepseek_v2_lite.modeling_deepseek import DeepseekV2ForCausalLM
+from moeits.models.deepseek_v2_lite.configuration_deepseek import DeepseekV2Config
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np

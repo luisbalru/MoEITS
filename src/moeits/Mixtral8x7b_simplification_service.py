@@ -1,8 +1,8 @@
-from MoEITS_simplification_service import MoEITS_Simplification_Service
+from moeits.MoEITS_simplification_service import MoEITS_Simplification_Service
 from transformers import AutoTokenizer, MixtralForCausalLM, MixtralConfig, AutoModelForCausalLM
 import json
 import numpy as np
-from utils import compute_information_measures
+from moeits.utils import compute_information_measures
 import torch
 
 
