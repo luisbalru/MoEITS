@@ -5,7 +5,6 @@ import os
 from numpy import unravel_index
 import json
 from abc import ABC, abstractmethod
-from Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Service
 
 
 class MoEITS_Simplification_Service(ABC):
@@ -63,24 +62,30 @@ class MoEITS_Simplification_Service(ABC):
         print("Setting new weights to experts...")
         self._set_weights_to_experts(name_experts)
 
-    def simplify_original_model(self, mode='prod'):
-        print(isinstance(self, Qwen2MoE_Simplification_Service))
-        exit()
+    def simplify_original_model(self, mode='prod', name=None):
         if mode == 'prod':
             self._get_mutual_information_metrics()
             num_experts, name_experts = self._simplify_model()
         elif mode == 'test':
             #Simulation
             print("Simulating pruning process...")
-            #num_experts = np.random.randint(1, 44, size=26).tolist()
-            num_experts = 12*[20]+12*[15] 
+            if name == 'qwen':
+                num_experts = np.random.randint(1, 60, size=24).tolist()
+            elif name == 'deepseek':
+                num_experts = np.random.randint(1, 60, size=24).tolist()
+            elif name == 'mixtral':
+                num_experts = np.random.randint(1, 60, size=24).tolist()
+            else:
+                print('Unsupported model for simplification')
+                return None
             name_experts = []
             for n in num_experts:
                 name_experts.append(list(range(0, n)))
+            
         else:
             print("Incorrect mode for simplification")
             return None
-        
+        self.name_experts = name_experts
         self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
         return self.simplified_model
