@@ -5,6 +5,7 @@ import os
 from numpy import unravel_index
 import json
 from abc import ABC, abstractmethod
+from Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Service
 
 
 class MoEITS_Simplification_Service(ABC):
@@ -62,21 +63,23 @@ class MoEITS_Simplification_Service(ABC):
         print("Setting new weights to experts...")
         self._set_weights_to_experts(name_experts)
 
-    def simplify_original_model(self):
-        """
-        self._get_mutual_information_metrics()
-        num_experts, name_experts = self._simplify_model()
-        
-        """
-        #Simulation
-        print("Simulating pruning process...")
-        #num_experts = np.random.randint(1, 44, size=26).tolist()
-        num_experts = 12*[20]+12*[15] 
-        name_experts = []
-        for n in num_experts:
-            name_experts.append(list(range(0, n)))
-        
-
+    def simplify_original_model(self, mode='prod'):
+        print(isinstance(self, Qwen2MoE_Simplification_Service))
+        exit()
+        if mode == 'prod':
+            self._get_mutual_information_metrics()
+            num_experts, name_experts = self._simplify_model()
+        elif mode == 'test':
+            #Simulation
+            print("Simulating pruning process...")
+            #num_experts = np.random.randint(1, 44, size=26).tolist()
+            num_experts = 12*[20]+12*[15] 
+            name_experts = []
+            for n in num_experts:
+                name_experts.append(list(range(0, n)))
+        else:
+            print("Incorrect mode for simplification")
+            return None
         
         self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
