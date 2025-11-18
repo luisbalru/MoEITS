@@ -1,10 +1,10 @@
 from moeits.MoEITS_simplification_service import MoEITS_Simplification_Service
-from models.deepseek_moe_16b.modeling_deepseek import DeepseekForCausalLM
-from models.deepseek_moe_16b.configuration_deepseek import DeepseekConfig
+from moeits.models.deepseek_moe_16b.modeling_deepseek import DeepseekForCausalLM
+from moeits.models.deepseek_moe_16b.configuration_deepseek import DeepseekConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np
-from utils import compute_information_measures
+from moeits.utils import compute_information_measures
 import torch
 
 

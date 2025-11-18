@@ -4,7 +4,7 @@ from moeits.models.deepseek_v2_lite.configuration_deepseek import DeepseekV2Conf
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np
-from utils import compute_information_measures
+from moeits.utils import compute_information_measures
 import torch
 
 
