@@ -15,7 +15,7 @@ def test_qwen_simplification_service():
 
     same_weights = True
 
-    for i in range(0, len(or_mod.layers)):
+    for i in range(0, len(or_mod.model.layers)):
         names_experts = expert_names[i]
         same_weights = same_weights and simp_model.model.layers[i].self_attn.q_proj.weight == or_mod.model.layers[i].self_attn.q_proj.weight
         same_weights = same_weights and simp_model.model.layers[i].self_attn.k_proj.weight == or_mod.model.layers[i].self_attn.k_proj.weight
