@@ -4,7 +4,7 @@ from moeits.Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Servi
 import torch
 
 
-def test_qwen_simplification_service():
+def test_layers_weights_qwen_simplification_service():
     factor = 5
     simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
     simp_model = simp_service.simplify_original_model(mode='test', name = "qwen")
@@ -37,7 +37,14 @@ def test_qwen_simplification_service():
     same_weights = same_weights and torch.equal(simp_model.model.norm.weight,or_mod.model.norm.weight)
     same_weights = same_weights and torch.equal(simp_model.lm_head.weight,or_mod.lm_head.weight)
 
+    expert_weights = True
+
+    for i in range(0, len(or_mod.model.layers)):
+            names_experts = expert_names[i]
+            for j, e in enumerate(names_experts):
+                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].mlp.experts[j].gate_proj.weight, or_mod.model.layers[i].mlp.experts[e].gate_proj.weight)
+                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].mlp.experts[j].up_proj.weight, or_mod.model.layers[i].mlp.experts[e].up_proj.weight)
+                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].mlp.experts[j].down_proj.weight, or_mod.model.layers[i].mlp.experts[e].down_proj.weight)
 
 
-
-    assert num_layers and same_weights
+    assert num_layers and same_weights and expert_weights
