@@ -33,8 +33,7 @@ def test_qwen_simplification_service():
 
         same_weights = same_weights and torch.equal(simp_model.model.layers[i].input_layernorm.weight,or_mod.model.layers[i].input_layernorm.weight)
         same_weights = same_weights and torch.equal(simp_model.model.layers[i].post_attention_layernorm.weight,or_mod.model.layers[i].post_attention_layernorm.weight)
-        if same_weights == False:
-            print(i)
+ 
     same_weights = same_weights and torch.equal(simp_model.model.norm.weight,or_mod.model.norm.weight)
     same_weights = same_weights and torch.equal(simp_model.lm_head.weight,or_mod.lm_head.weight)
 
