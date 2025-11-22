@@ -47,7 +47,9 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         return results
 
     def _build_simplified_model(self, num_experts, name_experts):
-        self.config_model['num_experts_by_block'] = name_experts
+        self.config_model['num_experts_by_block'] = num_experts
+        print(self.config_model['num_experts_by_block'])
+        input()
         self.simplified_model = Qwen2MoeForCausalLM(Qwen2MoeConfig(**self.config_model))
 
     def _set_weights_to_new_model(self, names):

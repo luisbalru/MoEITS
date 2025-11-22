@@ -29,7 +29,7 @@ if __name__ == '__main__':
         simplified_mixtral.save_pretrained(f'/MoEITS/simplified_models/mixtral_8x7b-f{factor}/')
     elif 'qwen' in model_name:
         qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
-        simplified_qwen = qwen_simp_service.simplify_original_model()
+        simplified_qwen = qwen_simp_service.simplify_original_model(mode='test', name=model_name)
         print(f"Params: {count_trainable_parameters(simplified_qwen)}")
         simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen2-moe-f{factor}/')
 
