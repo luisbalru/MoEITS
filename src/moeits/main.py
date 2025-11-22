@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
     model_name = sys.argv[1]
     factor = float(sys.argv[2])
+    mode = sys.argv[3]
 
     if 'deepseek' in model_name:
         deepseek_simp_service = DeepSeekV2Lite_Simplification_Service("deepseek-ai/DeepSeek-V2-Lite", factor=factor)
@@ -29,7 +30,7 @@ if __name__ == '__main__':
         simplified_mixtral.save_pretrained(f'/MoEITS/simplified_models/mixtral_8x7b-f{factor}/')
     elif 'qwen' in model_name:
         qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
-        simplified_qwen = qwen_simp_service.simplify_original_model(mode='test', name=model_name)
+        simplified_qwen = qwen_simp_service.simplify_original_model(mode=mode, name=model_name)
         print(f"Params: {count_trainable_parameters(simplified_qwen)}")
-        simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen2-moe-f{factor}/')
+        simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen2-moe-f{factor}-m{mode}/')
 
