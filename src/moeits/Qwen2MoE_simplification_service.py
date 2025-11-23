@@ -26,7 +26,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
     def _get_mutual_information_metrics(self):
         print("Getting NMI metrics...")
         num_layers = len(self.original_model.model.layers)
-        for i in range(1, num_layers):
+        for i in range(num_layers):
             experts = self.original_model.model.layers[i].mlp.experts
             nmi = self._calculate_NMI_experts(experts)
             self.layers['L_'+str(i)] = nmi

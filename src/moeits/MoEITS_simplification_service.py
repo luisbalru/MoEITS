@@ -48,9 +48,6 @@ class MoEITS_Simplification_Service(ABC):
         name_experts = []
 
         print("Simplifying model...")
-        print(self.layers.keys())
-        print(len(self.layers.keys()))
-        input()
         for k in self.layers.keys():
             nmi_encoder = self.layers[k]
             remaining_experts = self._simplify_block(nmi_encoder)
