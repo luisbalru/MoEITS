@@ -17,6 +17,7 @@ if __name__ == '__main__':
     model_name = sys.argv[1]
     factor = float(sys.argv[2])
     mode = sys.argv[3]
+    # TODO: COMPROBACIÓN DE PARÁMETROS Y PROPAGACIÓN EN TODOS LOS MODELOS
 
     if 'deepseek' in model_name:
         deepseek_simp_service = DeepSeekV2Lite_Simplification_Service("deepseek-ai/DeepSeek-V2-Lite", factor=factor)
