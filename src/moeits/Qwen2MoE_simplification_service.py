@@ -10,8 +10,6 @@ import multiprocessing
 from multiprocessing import Pool
 
 
-
-
 class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
     def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='utils/config.json'):
         with open(auth_path, 'r') as f:
