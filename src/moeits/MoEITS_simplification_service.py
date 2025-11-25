@@ -66,6 +66,8 @@ class MoEITS_Simplification_Service(ABC):
             self._get_mutual_information_metrics()
             tok = time.time()
             print(f"Time NMI: {tok-tik}")
+            print(self.layers.keys())
+            input()
             num_experts, name_experts = self._simplify_model()
         elif mode == 'test':
             #Simulation
