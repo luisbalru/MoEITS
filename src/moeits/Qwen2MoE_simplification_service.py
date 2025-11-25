@@ -30,7 +30,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         num_layers = len(self.original_model.model.layers)
         experts = [self.original_model.model.layers[i].mlp.experts for i in range(num_layers)]
         cpu_count = multiprocessing.cpu_count()
-        iters = experts // cpu_count
+        iters = len(experts) // cpu_count
         nmi = []
         i = 0
         for i in range(iters):
@@ -38,7 +38,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
                 nmi_aux = p.map(self._calculate_NMI_experts, experts[i*cpu_count:(i+1)*cpu_count])
                 nmi += nmi_aux
 
-                
+
         with Pool(cpu_count) as p:
             nmi_aux = p.map(self._calculate_NMI_experts, experts[i*cpu_count:])
             nmi += nmi_aux
