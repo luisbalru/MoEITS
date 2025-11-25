@@ -30,7 +30,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         num_layers = len(self.original_model.model.layers)
         experts = [self.original_model.model.layers[i].mlp.experts for i in range(num_layers)]
         cpu_count = multiprocessing.cpu_count()
-        free_cpus = 8
+        free_cpus = 2
         iters = len(experts) // free_cpus
         nmi = []
         i = 0
