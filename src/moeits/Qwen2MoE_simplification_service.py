@@ -6,6 +6,8 @@ import json
 import numpy as np
 from moeits.utils import compute_information_measures
 import torch
+import multiprocessing
+from multiprocessing import Pool
 
 
 
@@ -26,15 +28,29 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
     def _get_mutual_information_metrics(self):
         print("Getting NMI metrics...")
         num_layers = len(self.original_model.model.layers)
+        experts = [self.original_model.model.layers[i].mlp.experts for i in range(num_layers)]
+        cpu_count = multiprocessing.cpu_count()
+        iters = experts // cpu_count
+        nmi = []
+        i = 0
+        for i in range(iters):
+            with Pool(cpu_count) as p:
+                nmi_aux = p.map(self._calculate_NMI_experts, experts[i*cpu_count:(i+1)*cpu_count])
+                nmi += nmi_aux
+
+                
+        with Pool(cpu_count) as p:
+            nmi_aux = p.map(self._calculate_NMI_experts, experts[i*cpu_count:])
+            nmi += nmi_aux
+        
+
         for i in range(num_layers):
-            experts = self.original_model.model.layers[i].mlp.experts
-            nmi = self._calculate_NMI_experts(experts)
-            self.layers['L_'+str(i)] = nmi
+            self.layers['L_'+str(i)] = nmi[i]
     
     def _calculate_NMI_experts(self, experts):
         results = np.zeros((len(experts), len(experts)))
-        for i, e1 in enumerate(experts):
-            for j, e2 in enumerate(experts):
+        for i in range(len(experts)):
+            for j in range(len(experts)):
                 if i<j:
                     gate_info = compute_information_measures(experts[i].gate_proj.weight.detach().cpu().float().numpy(), experts[j].gate_proj.weight.detach().cpu().float().numpy())['NMI']
                     up_info = compute_information_measures(experts[i].up_proj.weight.detach().cpu().float().numpy(), experts[j].up_proj.weight.detach().cpu().float().numpy())['NMI']

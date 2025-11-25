@@ -1,10 +1,8 @@
 import numpy as np
-from scipy.stats import entropy, iqr
-import pandas as pd
-import os
+from scipy.stats import iqr
 from numpy import unravel_index
-import json
 from abc import ABC, abstractmethod
+import time
 
 
 class MoEITS_Simplification_Service(ABC):
@@ -64,7 +62,10 @@ class MoEITS_Simplification_Service(ABC):
 
     def simplify_original_model(self, mode='prod', name=None):
         if mode == 'prod':
+            tik = time.time()
             self._get_mutual_information_metrics()
+            tok = time.time()
+            print(f"Time NMI: {tok-tik}")
             num_experts, name_experts = self._simplify_model()
         elif mode == 'test':
             #Simulation
