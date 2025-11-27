@@ -62,9 +62,15 @@ class MoEITS_Simplification_Service(ABC):
         print("Setting new weights to experts...")
         self._set_weights_to_experts(name_experts)
 
+    def _save_NMI_matrix(self, name):
+        base_path = '/MoEITS/NMI_matrices/'
+        with open(os.path.join(base_path, name+'.json'), 'w') as f:
+            f.write(json.dumps(self.layers, indent=4))
+
     def simplify_original_model(self, mode='prod', name=None):
         if mode == 'prod':
             self._get_mutual_information_metrics()
+            self._save_NMI_matrix(name)
             num_experts, name_experts = self._simplify_model()
         elif mode == 'test':
             #Simulation
