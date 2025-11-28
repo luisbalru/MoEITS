@@ -70,7 +70,7 @@ class MoEITS_Simplification_Service(ABC):
     def simplify_original_model(self, mode='prod', name=None):
         if mode == 'prod':
             self._get_mutual_information_metrics()
-            self._save_NMI_matrix(name)
+            #self._save_NMI_matrix(name)
             num_experts, name_experts = self._simplify_model()
         elif mode == 'test':
             #Simulation
