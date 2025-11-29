@@ -29,7 +29,7 @@ class MoEITS_Simplification_Service(ABC):
         pass
 
     @abstractmethod
-    def __save_NMI_matrix(self, name):
+    def _save_NMI_matrix(self, name):
         pass
 
 
