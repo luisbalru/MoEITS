@@ -6,14 +6,17 @@ import json
 import numpy as np
 from moeits.utils import compute_information_measures
 import torch
+import os
 
 
 
 
 class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
-    def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='utils/config.json'):
+    def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='utils/config.json', nmi_base_path = '/MoEITS/NMI_matrices/'):
         with open(auth_path, 'r') as f:
             auth = json.load(f)
+
+        self.nmi_base_path = nmi_base_path
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=True, torch_dtype=torch.bfloat16, device_map="auto")
@@ -21,14 +24,24 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
+    
+    def _save_NMI_matrix(self, name):
+        print(f"Saving NMI info to file {os.path.join(self.nmi_base_path, name+'.npz')}...")
+        np.savez_compressed(os.path.join(self.nmi_base_path, name+'.npz'), **self.layers)
 
-    def _get_mutual_information_metrics(self):
-        print("Getting NMI metrics...")
-        num_layers = len(self.original_model.model.layers)
-        for i in range(num_layers):
-            experts = self.original_model.model.layers[i].mlp.experts
-            nmi = self._calculate_NMI_experts(experts)
-            self.layers['L_'+str(i)] = nmi
+    def _get_mutual_information_metrics(self, name):
+        nmi_info = os.listdir(self.nmi_base_path)
+        if name+'.npz' in nmi_info:
+            print("Loading NMI metrics...")
+            self.layers = dict(np.load(os.path.join(self.nmi_base_path, name+'.npz')))
+        else:
+            print("Calculating NMI metrics...")
+            num_layers = len(self.original_model.model.layers)
+            for i in range(num_layers):
+                experts = self.original_model.model.layers[i].mlp.experts
+                nmi = self._calculate_NMI_experts(experts)
+                self.layers['L_'+str(i)] = nmi
+            self._save_NMI_matrix(name)
     
     def _calculate_NMI_experts(self, experts):
         results = np.zeros((len(experts), len(experts)))
