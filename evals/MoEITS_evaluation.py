@@ -17,7 +17,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         # 'attn_implementation="flash_attention_2"' -> The speed secret sauce
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
-            device_map="auto",
+            device_map="cuda",
             torch_dtype=torch.float16,
             trust_remote_code=True, 
             #attn_implementation="flash_attention_2" 
