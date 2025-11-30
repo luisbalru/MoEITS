@@ -61,6 +61,13 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
     # --- SINGLE GENERATION (Used as fallback) ---
     def generate(self, prompt: str) -> str:
         return self.batch_generate([prompt])[0]
+    
+    async def a_generate(self, prompt: str) -> str:
+        """
+        Asynchronous generation method required by DeepEvalBaseLLM.
+        Since we are using local HF transformers (sync), we just wrap the sync call.
+        """
+        return self.generate(prompt)
 
     # --- SAMPLING GENERATION (Required ONLY for HumanEval) ---
     def generate_samples(self, prompt: str, n: int) -> List[str]:
