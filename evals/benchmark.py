@@ -13,8 +13,8 @@ from deepeval.benchmarks import (
 )
 
 # ---------------- CONFIGURATION ----------------
-MODEL_PATH = "" 
-OUTPUT_FILE = "moe_benchmark_results.json"
+MODEL_PATH = "Qwen/Qwen1.5-MoE-A2.7B" 
+OUTPUT_FILE = "Qwen1.5-MoE-A2.7B_benchmark_results.json"
 # -----------------------------------------------
 
 def save_result(name, score, results_dict):
