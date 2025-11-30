@@ -9,7 +9,7 @@ from MoEITS_evaluation import MoEITSEvaluation
 from deepeval.benchmarks import (
     MMLU, HellaSwag, BigBenchHard, TruthfulQA, HumanEval,
     IFEval, GSM8K, MathQA, LogiQA, BoolQ, ARC, BBQ, 
-    Lambada, Winogrande, SQuAD
+    lambada, Winogrande, SQuAD
 )
 
 # ---------------- CONFIGURATION ----------------
@@ -68,7 +68,7 @@ def run_suite():
 
     # LAMBADA (Word Prediction)
     if "Lambada" not in results:
-        bench = Lambada(n_shots=0)
+        bench = lambada(n_shots=0)
         bench.evaluate(model=moe_model, batch_size=32)
         save_result("Lambada", bench.overall_score, results)
 
