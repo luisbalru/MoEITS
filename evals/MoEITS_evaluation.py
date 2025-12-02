@@ -22,7 +22,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
             device_map="auto",
             trust_remote_code=True,
             torch_dtype=torch.float16,
-            attn_implementation="flash_attention_2" if torch.cuda.is_available() else "eager"
+            #attn_implementation="flash_attention_2" if torch.cuda.is_available() else "eager"
         )
         self.model.eval()
 
@@ -30,7 +30,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         return self.model
 
     def get_model_name(self):
-        return "Qwen1.5-MoE"
+        return self.model_path
 
     def _apply_chat_template(self, prompt: str) -> str:
         """Helper to format a single prompt."""
