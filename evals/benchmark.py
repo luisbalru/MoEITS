@@ -44,7 +44,7 @@ def run_benchmark(name, benchmark_obj, model, results_dict, **eval_kwargs):
     try:
         benchmark_obj.evaluate(model=model, **eval_kwargs)
         ##### DEBUG
-        print(benchmark_obj)
+        print(results_dict)
         input()
         #####
         save_result(name, benchmark_obj.overall_score, results_dict)
