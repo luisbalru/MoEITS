@@ -88,7 +88,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         with torch.no_grad():
             generated_ids = self.model.generate(
                 **inputs,
-                max_new_tokens=256, # Safe upper limit
+                max_new_tokens=20, # Safe upper limit
                 do_sample=False,    # Greedy
                 pad_token_id=self.tokenizer.pad_token_id
             )
