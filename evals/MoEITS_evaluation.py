@@ -2,96 +2,136 @@ from deepeval.models.base_model import DeepEvalBaseLLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import re
+from typing import List
 
 class MoEITSEvaluation(DeepEvalBaseLLM):
-    def __init__(self, model_path="Qwen/Qwen1.5-MoE-A2.7B", quantization=None):
+    def __init__(self, model_path="Qwen/Qwen1.5-MoE-A2.7B"):
         self.model_path = model_path
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
-        print(f"Loading {model_path} on {self.device}...")
+        print(f"🌊 Loading Model: {model_path} on {self.device}...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        
+        # CRITICAL FOR BATCHING: Set padding side to left for decoder-only models
+        self.tokenizer.padding_side = "left" 
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
-            device_map=self.device,
+            device_map="auto",
             trust_remote_code=True,
-            torch_dtype=torch.float16
+            torch_dtype=torch.float16,
+            attn_implementation="flash_attention_2" if torch.cuda.is_available() else "eager"
         )
         self.model.eval()
 
     def load_model(self):
         return self.model
 
-    def generate(self, prompt: str) -> str:
-        """
-        DeepEval passes a raw string 'prompt'. We must:
-        1. Wrap it in Qwen's Chat Template.
-        2. Force the model to be concise (System Prompt).
-        3. Clean the output so 'The answer is B' becomes 'B'.
-        """
+    def get_model_name(self):
+        return "Qwen1.5-MoE"
+
+    def _apply_chat_template(self, prompt: str) -> str:
+        """Helper to format a single prompt."""
+        # Detect context for specific system prompts
+        is_math = "math" in prompt.lower() or "calculation" in prompt.lower()
         
-        # 1. Define a "Constrained" System Prompt to force brevity
-        # Use this for MMLU, ARC, HellaSwag (Multiple Choice)
-        system_prompt = "You are a helpful assistant. You are answering multiple choice questions. Output ONLY the single letter corresponding to the correct answer (e.g. A, B, C, or D). Do not provide explanations."
-        
-        # NOTE: For GSM8K (Math), you might need a different system prompt 
-        # (e.g. "Think step by step") and disable the cleaning logic below.
-        
+        if is_math:
+            system_msg = "You are a helpful assistant. Solve the math problem step by step."
+        else:
+            system_msg = "You are a helpful assistant. Answer the multiple choice question by outputting ONLY the correct option letter (A, B, C, or D). Do not explain."
+
         messages = [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": system_msg},
             {"role": "user", "content": prompt}
         ]
-
-        # 2. Apply Chat Template (Crucial for Qwen)
-        text = self.tokenizer.apply_chat_template(
+        
+        return self.tokenizer.apply_chat_template(
             messages,
             tokenize=False,
             add_generation_prompt=True
         )
 
-        model_inputs = self.tokenizer([text], return_tensors="pt").to(self.device)
-
-        with torch.no_grad():
-            generated_ids = self.model.generate(
-                **model_inputs,
-                max_new_tokens=20, # Keep it short for MMLU/ARC
-                do_sample=False,   # Greedy decoding is better for benchmarks
-                pad_token_id=self.tokenizer.eos_token_id
-            )
-
-        # 3. Decode and Extract
-        # Remove the input tokens from the output
-        generated_ids = [
-            output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
-        ]
-        response = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        
-        # 4. Post-Processing / Cleaning
-        cleaned_response = self._clean_response(response)
-        
-        # Debugging: Print to see what's happening if it fails again
-        # print(f"DEBUG: Raw='{response.strip()}' -> Clean='{cleaned_response}'")
-        
-        return cleaned_response
-
-    def _clean_response(self, text):
-        """
-        Extracts the first valid option letter (A, B, C, D, E) from the response.
-        """
+    def _clean_multiple_choice(self, text):
+        """Extracts just 'A', 'B', 'C', 'D'."""
         text = text.strip()
-        
-        # If the model outputs "The answer is A", regex grabs "A"
-        match = re.search(r'\b([A-E])\b', text, re.IGNORECASE)
+        # Look for single letter answer or "Answer: A" pattern
+        match = re.search(r'\b([A-D])\b', text, re.IGNORECASE)
         if match:
             return match.group(1).upper()
-            
-        # Fallback: return the first character if it's a letter
-        if len(text) > 0 and text[0].isalpha():
-            return text[0].upper()
-            
         return text
+
+    def generate(self, prompt: str) -> str:
+        """Fallback for single generation."""
+        return self.batch_generate([prompt])[0]
+
+    def batch_generate(self, prompts: List[str]) -> List[str]:
+        """
+        The method DeepEval calls when batch_size > 1.
+        """
+        # 1. Apply Chat Template to all prompts
+        chat_prompts = [self._apply_chat_template(p) for p in prompts]
+
+        # 2. Tokenize with Padding (Crucial for batching)
+        inputs = self.tokenizer(
+            chat_prompts, 
+            padding=True, 
+            return_tensors="pt"
+        ).to(self.device)
+
+        # 3. Generate
+        with torch.no_grad():
+            generated_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=256, # Safe upper limit
+                do_sample=False,    # Greedy
+                pad_token_id=self.tokenizer.pad_token_id
+            )
+
+        # 4. Decode and Strip Input Tokens
+        results = []
+        input_length = inputs.input_ids.shape[1]
+        
+        for i, output_ids in enumerate(generated_ids):
+            # Slice off the input prompt
+            new_tokens = output_ids[input_length:]
+            decoded_text = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
+            
+            # Apply cleaning only if it looks like a Multiple Choice Question
+            # (Check original prompt for context)
+            if "math" not in prompts[i].lower():
+                decoded_text = self._clean_multiple_choice(decoded_text)
+            
+            results.append(decoded_text)
+
+        return results
 
     async def a_generate(self, prompt: str) -> str:
         return self.generate(prompt)
 
-    def get_model_name(self):
-        return self.model_path
+    async def a_batch_generate(self, prompts: List[str]) -> List[str]:
+        return self.batch_generate(prompts)
+
+    def generate_samples(self, prompt: str, n: int, temperature: float) -> List[str]:
+        """Specific for HumanEval (Pass@k)"""
+        formatted_prompt = self._apply_chat_template(prompt)
+        inputs = self.tokenizer([formatted_prompt], return_tensors="pt").to(self.device)
+
+        with torch.no_grad():
+            generated_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=512,
+                num_return_sequences=n,
+                do_sample=True,
+                temperature=temperature,
+                pad_token_id=self.tokenizer.pad_token_id
+            )
+
+        completions = []
+        input_len = inputs.input_ids.shape[1]
+        for i in range(generated_ids.shape[0]):
+            output_ids = generated_ids[i][input_len:]
+            completions.append(self.tokenizer.decode(output_ids, skip_special_tokens=True))
+            
+        return completions
