@@ -90,7 +90,8 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
                 **inputs,
                 max_new_tokens=20, # Safe upper limit
                 do_sample=False,    # Greedy
-                pad_token_id=self.tokenizer.pad_token_id
+                pad_token_id=self.tokenizer.pad_token_id,
+                use_cache=False
             )
 
         # 4. Decode and Strip Input Tokens
