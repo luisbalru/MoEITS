@@ -73,10 +73,6 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         # 1. Apply Chat Template to all prompts
         chat_prompts = [self._apply_chat_template(p) for p in prompts]
 
-        ##### DEBUG
-        print(chat_prompts)
-        #####
-
         # 2. Tokenize with Padding (Crucial for batching)
         inputs = self.tokenizer(
             chat_prompts, 
