@@ -104,6 +104,11 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
                 decoded_text = self._clean_multiple_choice(decoded_text)
             
             results.append(decoded_text)
+        
+        ##### DEBUG
+        print(results)
+        input()
+        #####
 
         return results
 

@@ -43,10 +43,6 @@ def run_benchmark(name, benchmark_obj, model, results_dict, **eval_kwargs):
     print(f"\n🚀 Running {name}...")
     try:
         benchmark_obj.evaluate(model=model, **eval_kwargs)
-        ##### DEBUG
-        print(results_dict)
-        input()
-        #####
         save_result(name, benchmark_obj.overall_score, results_dict)
     except Exception as e:
         log_failure(name, str(e))
