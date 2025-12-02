@@ -22,7 +22,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
             device_map="auto",
             trust_remote_code=True,
             torch_dtype=torch.float16,
-            #attn_implementation="flash_attention_2" if torch.cuda.is_available() else "eager"
+            attn_implementation="eager"        
         )
         self.model.eval()
 
