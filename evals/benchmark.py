@@ -51,7 +51,7 @@ def run_benchmark(name, benchmark_obj, model, results_dict, **eval_kwargs):
 
 def run_suite():
     # 1. Load Model Once
-    moe_model = MoEITSEvaluation(model_path='deepseek-ai/DeepSeek-V2-Lite')
+    moe_model = MoEITSEvaluation(model_path="mistralai/Mixtral-8x7B-Instruct-v0.1")
     
     results = {}
     if os.path.exists(OUTPUT_FILE):
