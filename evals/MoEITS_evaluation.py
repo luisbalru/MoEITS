@@ -102,20 +102,12 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
             # Slice off the input prompt
             new_tokens = output_ids[input_length:]
             decoded_text = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
-            ##### DEBUG
-            print(decoded_text)
-            input()
-            #####
             # Apply cleaning only if it looks like a Multiple Choice Question
             # (Check original prompt for context)
             if "math" not in prompts[i].lower():
                 decoded_text = self._clean_multiple_choice(decoded_text)
             
             results.append(decoded_text)
-        
-        
-        print(results)
-
 
         return results
 
