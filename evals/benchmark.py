@@ -62,7 +62,7 @@ def run_suite():
     # --- SUITE 1: Knowledge (Fast / Low Memory) ---
     print("\n--- SUITE 1: Knowledge ---")
     
-    run_benchmark("MMLU", MMLU(n_shots=5), moe_model, results, batch_size=16)
+    run_benchmark("MMLU", MMLU(n_shots=2), moe_model, results, batch_size=1)
     run_benchmark("HellaSwag", HellaSwag(n_shots=5), moe_model, results, batch_size=16)
     run_benchmark("ARC", ARC(n_shots=5), moe_model, results, batch_size=16)
     run_benchmark("BoolQ", BoolQ(n_shots=0), moe_model, results, batch_size=32)
