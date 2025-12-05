@@ -21,7 +21,6 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
             model_path,
             device_map="auto",
             trust_remote_code=True,
-            torch_dtype=torch.float16,
             attn_implementation="eager"        
         )
         self.model.eval()
