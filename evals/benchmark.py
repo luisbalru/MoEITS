@@ -13,7 +13,7 @@ from deepeval.benchmarks import (
 from deepeval.benchmarks.modes import TruthfulQAMode # For specific config
 
 # ---------------- CONFIGURATION ----------------
-OUTPUT_FILE = "DeepSeek-V2_results.json"
+OUTPUT_FILE = "Qwen3-Next-80B-A3B-Instruct-FP8_results.json"
 FAIL_LOG = "failures.log"
 # -----------------------------------------------
 
@@ -51,7 +51,7 @@ def run_benchmark(name, benchmark_obj, model, results_dict, **eval_kwargs):
 
 def run_suite():
     # 1. Load Model Once
-    moe_model = MoEITSEvaluation(model_path="deepseek-ai/DeepSeek-V2-Lite-Chat")
+    moe_model = MoEITSEvaluation(model_path="Qwen/Qwen3-Next-80B-A3B-Instruct-FP8")
     
     results = {}
     if os.path.exists(OUTPUT_FILE):
