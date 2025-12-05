@@ -1,5 +1,5 @@
 from deepeval.models.base_model import DeepEvalBaseLLM
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import re
 from typing import List
@@ -12,11 +12,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         print(f"🌊 Loading Model: {model_path} on {self.device}...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 
-        quantization_config = BitsAndBytesConfig(
-                load_in_8bit=True,
-                llm_int8_enable_fp32_cpu_offload=True # Opcional: seguridad extra
-            )
-        
+
         # CRITICAL FOR BATCHING: Set padding side to left for decoder-only models
         self.tokenizer.padding_side = "left" 
         if self.tokenizer.pad_token is None:
@@ -25,7 +21,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
             device_map="auto",
-            quantization_config=quantization_config,
+            torch_dtype="auto", 
             trust_remote_code=True,
             attn_implementation="eager"        
         )
