@@ -31,9 +31,9 @@ def test_layers_weights_mixtral8x7b_simplification_service():
     for i in range(0, len(or_mod.model.layers)):
             names_experts = expert_names[i]
             for j, e in enumerate(names_experts):
-                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].mlp.experts[j].w1.weight, or_mod.model.layers[i].mlp.experts[e].w1.weight)
-                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].mlp.experts[j].w2.weight, or_mod.model.layers[i].mlp.experts[e].w2.weight)
-                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].mlp.experts[j].w3.weight, or_mod.model.layers[i].mlp.experts[e].w3.weight)
+                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].block_sparse_moe.experts[j].w1.weight, or_mod.model.layers[i].block_sparse_moe.experts[e].w1.weight)
+                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].block_sparse_moe.experts[j].w2.weight, or_mod.model.layers[i].block_sparse_moe.experts[e].w2.weight)
+                expert_weights = expert_weights and torch.equal(simp_model.model.layers[i].block_sparse_moe.experts[j].w3.weight, or_mod.model.layers[i].block_sparse_moe.experts[e].w3.weight)
 
 
     assert num_layers and same_weights and expert_weights
