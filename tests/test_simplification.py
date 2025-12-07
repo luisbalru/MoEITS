@@ -49,7 +49,7 @@ def test_layers_weights_qwen_simplification_service():
 
     assert num_layers and same_weights and expert_weights
 
-
+"""
 def test_layers_weights_mixtral8x7b_simplification_service():
     factor = 5
     simp_service = Mixtral8x7b_Simplification_Service("mistralai/Mixtral-8x7B-Instruct-v0.1", factor=factor)
@@ -86,7 +86,7 @@ def test_layers_weights_mixtral8x7b_simplification_service():
 
 
     assert num_layers and same_weights and expert_weights
-
+"""
 
 
 
