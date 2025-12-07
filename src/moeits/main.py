@@ -25,10 +25,10 @@ if __name__ == '__main__':
         print(f"Params: {count_trainable_parameters(simplified_deepseek_moe)}")
         simplified_deepseek_moe.save_pretrained(f'/MoEITS/simplified_models/deepseek-v2-lite-f{factor}/')
     elif 'mixtral' in model_name:
-        mixtral_simp_service = Mixtral8x7b_Simplification_Service('mistralai/Mixtral-8x7B-v0.1', factor=factor)
+        mixtral_simp_service = Mixtral8x7b_Simplification_Service('"mistralai/Mixtral-8x7B-Instruct-v0.1"', factor=factor)
         simplified_mixtral = mixtral_simp_service.simplify_original_model()
         print(f"Params: {count_trainable_parameters(simplified_mixtral)}")
-        simplified_mixtral.save_pretrained(f'/MoEITS/simplified_models/mixtral_8x7b-f{factor}/')
+        simplified_mixtral.save_pretrained(f'/MoEITS/simplified_models/mixtral_8x7b_instruct-f{factor}/')
     elif 'qwen' in model_name:
         qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
         simplified_qwen = qwen_simp_service.simplify_original_model(mode=mode, name=model_name)
