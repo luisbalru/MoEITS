@@ -91,6 +91,7 @@ class MoEITS_Simplification_Service(ABC):
             print("Incorrect mode for simplification")
             return None
         self.name_experts = name_experts
+        print(self.name_experts)
         self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
         return self.simplified_model
