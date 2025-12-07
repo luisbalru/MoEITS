@@ -13,7 +13,7 @@ from deepeval.benchmarks import (
 from deepeval.benchmarks.modes import TruthfulQAMode # For specific config
 
 # ---------------- CONFIGURATION ----------------
-OUTPUT_FILE = "Qwen2-57B-A14B-Instruct_results.json"
+OUTPUT_FILE = "Qwen1.5-MoE-A2.7B-Chat_results.json"
 FAIL_LOG = "failures.log"
 # -----------------------------------------------
 
@@ -51,7 +51,7 @@ def run_benchmark(name, benchmark_obj, model, results_dict, **eval_kwargs):
 
 def run_suite():
     # 1. Load Model Once
-    moe_model = MoEITSEvaluation(model_path="Qwen/Qwen2-57B-A14B-Instruct")
+    moe_model = MoEITSEvaluation(model_path="Qwen/Qwen1.5-MoE-A2.7B-Chat")
     
     results = {}
     if os.path.exists(OUTPUT_FILE):
