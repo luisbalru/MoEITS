@@ -27,20 +27,20 @@ import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch import nn
 
-from ...activations import ACT2FN
-from ...cache_utils import Cache, DynamicCache, SlidingWindowCache, StaticCache
-from ...generation import GenerationMixin
-from ...modeling_attn_mask_utils import AttentionMaskConverter, _prepare_4d_causal_attention_mask
-from ...modeling_outputs import (
+from transformers.activations import ACT2FN
+from transformers.cache_utils import Cache, DynamicCache, SlidingWindowCache, StaticCache
+from transformers.generation import GenerationMixin
+from transformers.modeling_attn_mask_utils import AttentionMaskConverter, _prepare_4d_causal_attention_mask
+from transformers.modeling_outputs import (
     MoeCausalLMOutputWithPast,
     MoeModelOutputWithPast,
     QuestionAnsweringModelOutput,
     SequenceClassifierOutputWithPast,
     TokenClassifierOutput,
 )
-from ...modeling_utils import PreTrainedModel
-from ...pytorch_utils import is_torch_greater_or_equal_than_1_13
-from ...utils import (
+from transformers.modeling_utils import PreTrainedModel
+from transformers.pytorch_utils import is_torch_greater_or_equal_than_1_13
+from transformers.utils import (
     add_code_sample_docstrings,
     add_start_docstrings,
     add_start_docstrings_to_model_forward,
@@ -48,12 +48,12 @@ from ...utils import (
     logging,
     replace_return_docstrings,
 )
-from ...utils.import_utils import is_torch_fx_available
+from transformers.utils.import_utils import is_torch_fx_available
 from .configuration_mixtral import MixtralConfig
 
 
 if is_flash_attn_2_available():
-    from ...modeling_flash_attention_utils import _flash_attention_forward
+    from transformers.modeling_flash_attention_utils import _flash_attention_forward
 
 # This makes `_prepare_4d_causal_attention_mask` a leaf function in the FX graph.
 # It means that the function will not be traced through and simply appear as a node in the graph.
