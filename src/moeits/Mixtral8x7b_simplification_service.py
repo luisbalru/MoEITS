@@ -1,4 +1,6 @@
 from moeits.MoEITS_simplification_service import MoEITS_Simplification_Service
+from moeits.models.mixtral8x7b.modeling_mixtral import MixtralForCausalLM
+from moeits.models.mixtral8x7b.configuration_mixtral import MixtralConfig 
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import numpy as np
