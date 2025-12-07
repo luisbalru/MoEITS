@@ -74,13 +74,12 @@ class MoEITS_Simplification_Service(ABC):
         elif mode == 'test':
             #Simulation
             print("Simulating pruning process...")
-            if name == 'qwen':
+            if name == 'qwen1.5':
                 num_experts = np.random.randint(1, 60, size=24).tolist()
             elif name == 'deepseek':
                 num_experts = np.random.randint(1, 64, size=26).tolist()
             elif name == 'mixtral':
-                # TODO: Change number of experts and layers
-                num_experts = np.random.randint(1, 60, size=24).tolist()
+                num_experts = np.random.randint(1, 8, size=32).tolist()
             else:
                 print('Unsupported model for simplification')
                 return None
