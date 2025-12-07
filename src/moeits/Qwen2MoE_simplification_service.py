@@ -24,10 +24,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
-    
-    def _save_NMI_matrix(self, name):
-        print(f"Saving NMI info to file {os.path.join(self.nmi_base_path, name+'.npz')}...")
-        np.savez_compressed(os.path.join(self.nmi_base_path, name+'.npz'), **self.layers)
+
 
     def _get_mutual_information_metrics(self, name):
         nmi_info = os.listdir(self.nmi_base_path)
