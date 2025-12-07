@@ -7,7 +7,7 @@ import torch
 def test_layers_weights_qwen_simplification_service():
     factor = 5
     simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
-    simp_model = simp_service.simplify_original_model(mode='test', name = "qwen")
+    simp_model = simp_service.simplify_original_model(mode='test', name = "qwen1.5")
     num_layers = len(simp_service.name_experts) == len(simp_model.model.layers)
 
     or_mod = simp_service.original_model
@@ -53,7 +53,7 @@ def test_layers_weights_qwen_simplification_service():
 def test_layers_weights_mixtral8x7b_simplification_service():
     factor = 5
     simp_service = Mixtral8x7b_Simplification_Service("mistralai/Mixtral-8x7B-Instruct-v0.1", factor=factor)
-    simp_model = simp_service.simplify_original_model(mode='test', name = "qwen")
+    simp_model = simp_service.simplify_original_model(mode='test', name = "mixtral")
     num_layers = len(simp_service.name_experts) == len(simp_model.model.layers)
 
     or_mod = simp_service.original_model
