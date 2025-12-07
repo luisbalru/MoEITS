@@ -4,28 +4,38 @@ import json
 import numpy as np
 from moeits.utils import compute_information_measures
 import torch
+import os
 
 
 
 
 class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
-    def __init__(self, model_name, factor=1.5, output_base_path='', config_path='utils/config.json'):
-        with open(config_path, 'r') as f:
-            config = json.load(f)
+    def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='utils/config.json', nmi_base_path = '/MoEITS/NMI_matrices/'):
+        with open(auth_path, 'r') as f:
+            auth = json.load(f)
+
+        self.nmi_base_path = nmi_base_path    
         self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=config['token'])
-        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=config['token'])
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=auth['token'])
+        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=auth['token'])
+        self.config_model = self.original_model.config.to_dict()
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
 
-    def _get_mutual_information_metrics(self):
-        print("Getting NMI metrics...")
-        num_layers = len(self.original_model.model.layers)
-        for i in range(num_layers):
-            experts = self.original_model.model.layers[i].block_sparse_moe.experts
-            nmi = self._calculate_NMI_experts(experts)
-            self.layers['L_'+str(i)] = nmi
+    def _get_mutual_information_metrics(self, name):
+        nmi_info = os.listdir(self.nmi_base_path)
+        if name+'.npz' in nmi_info:
+            print("Loading NMI metrics...")
+            self.layers = dict(np.load(os.path.join(self.nmi_base_path, name+'.npz')))
+        else:
+            print("Getting NMI metrics...")
+            num_layers = len(self.original_model.model.layers)
+            for i in range(num_layers):
+                experts = self.original_model.model.layers[i].block_sparse_moe.experts
+                nmi = self._calculate_NMI_experts(experts)
+                self.layers['L_'+str(i)] = nmi
+            self._save_NMI_matrix(name)
     
     def _calculate_NMI_experts(self, experts):
         results = np.zeros((len(experts), len(experts)))
@@ -41,7 +51,8 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         return results
 
     def _build_simplified_model(self, num_experts, name_experts):
-        self.simplified_model = MixtralForCausalLM(MixtralConfig(max_position_embeddings=32768, name_experts_by_block=name_experts, num_experts_by_block=num_experts))
+        self.config_model['num_experts_by_block'] = num_experts
+        self.simplified_model = MixtralForCausalLM(MixtralConfig(**self.config_model))
 
     def _set_weights_to_new_model(self, names):
         print("Embedding tokens")
