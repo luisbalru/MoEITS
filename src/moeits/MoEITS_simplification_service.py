@@ -28,9 +28,9 @@ class MoEITS_Simplification_Service(ABC):
     def _set_weights_to_experts(self, names):
         pass
 
-    @abstractmethod
     def _save_NMI_matrix(self, name):
-        pass
+        print(f"Saving NMI info to file {os.path.join(self.nmi_base_path, name+'.npz')}...")
+        np.savez_compressed(os.path.join(self.nmi_base_path, name+'.npz'), **self.layers)
 
 
     def _simplify_block(self, nmi_matrix):
