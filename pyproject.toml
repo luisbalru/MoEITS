@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "moeits"
+version = "0.1.0"
+
+
+# --- NEW SECTION: DEVELOPMENT DEPENDENCIES ---
+[project.optional-dependencies]
+# Define a group named 'dev' that includes all tools necessary for development
+dev = [
+    "pytest>=7.0",        # The testing framework
+    "pytest-cov",         # To check code coverage during tests
+    "black",              # The uncompromising code formatter
+    "isort",              # To sort imports alphabetically
+    "mypy",               # A static type checker
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["moeits"]
+
+# Optional: Configuration for testing
+[tool.pytest.ini_options]
+python_files = "test_*.py"
+testpaths = "tests"
