@@ -33,5 +33,5 @@ if __name__ == '__main__':
         qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
         simplified_qwen = qwen_simp_service.simplify_original_model(mode=mode, name=model_name)
         print(f"Params: {count_trainable_parameters(simplified_qwen)}")
-        simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen2-moe-f{factor}-m{mode}-m{mode}/')
+        simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen2-moe-f{factor}-m{mode}/')
 
