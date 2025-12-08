@@ -19,7 +19,7 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         self.nmi_base_path = nmi_base_path    
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=auth['token'])
-        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=auth['token'])
+        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=auth['token'],  device_map="auto")
         self.config_model = self.original_model.config.to_dict()
         self.layers = {}
         self.factor = factor
@@ -54,6 +54,7 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
 
     def _build_simplified_model(self, num_experts, name_experts):
         self.config_model['num_experts_by_block'] = num_experts
+        print("Creating new simplified model...")
         self.simplified_model = MixtralForCausalLM(MixtralConfig(**self.config_model))
 
     def _set_weights_to_new_model(self, names):
