@@ -21,7 +21,7 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
             device_map="auto",
-            torch_dtype="auto", 
+            dtype=torch.float16, 
             trust_remote_code=True,
             attn_implementation="eager"        
         )
