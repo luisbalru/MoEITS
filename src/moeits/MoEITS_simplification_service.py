@@ -34,7 +34,7 @@ class MoEITS_Simplification_Service(ABC):
 
 
     def _simplify_block(self, nmi_matrix):
-        remaining_experts = list(np.arange(nmi_matrix.shape[0]))
+        remaining_experts = np.arange(nmi_matrix.shape[0]).tolist()
         mean = np.mean(nmi_matrix)
         iqr_val = iqr(nmi_matrix)
         th = mean + iqr_val*self.factor
@@ -56,7 +56,7 @@ class MoEITS_Simplification_Service(ABC):
             nmi_encoder = self.layers[k]
             remaining_experts = self._simplify_block(nmi_encoder)
             experts.append(len(remaining_experts))
-            name_experts.append(remaining_experts.tolist())
+            name_experts.append(remaining_experts)
         
         return experts, name_experts
     
