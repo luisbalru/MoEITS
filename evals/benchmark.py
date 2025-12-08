@@ -11,9 +11,14 @@ from deepeval.benchmarks import (
     LAMBADA, Winogrande, SQuAD 
 )
 from deepeval.benchmarks.modes import TruthfulQAMode # For specific config
+import sys
+
+
+
 
 # ---------------- CONFIGURATION ----------------
-OUTPUT_FILE = "Mixtral8x7b_Instruct_16b_results.json"
+MODEL_NAME = sys.argv[1]
+OUTPUT_FILE = sys.argv[2]
 FAIL_LOG = "failures.log"
 # -----------------------------------------------
 
@@ -51,7 +56,7 @@ def run_benchmark(name, benchmark_obj, model, results_dict, **eval_kwargs):
 
 def run_suite():
     # 1. Load Model Once
-    moe_model = MoEITSEvaluation(model_path="mistralai/Mixtral-8x7B-Instruct-v0.1")
+    moe_model = MoEITSEvaluation(model_path=MODEL_NAME)
     
     results = {}
     if os.path.exists(OUTPUT_FILE):
