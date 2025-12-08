@@ -20,18 +20,18 @@ if __name__ == '__main__':
     # TODO: COMPROBACIÓN DE PARÁMETROS Y PROPAGACIÓN EN TODOS LOS MODELOS
 
     if 'deepseek' in model_name:
-        deepseek_simp_service = DeepSeekV2Lite_Simplification_Service("deepseek-ai/DeepSeek-V2-Lite", factor=factor)
+        deepseek_simp_service = DeepSeekV2Lite_Simplification_Service("deepseek-ai/DeepSeek-V2-Lite-Chat", factor=factor)
         simplified_deepseek_moe = deepseek_simp_service.simplify_original_model()
         print(f"Params: {count_trainable_parameters(simplified_deepseek_moe)}")
-        simplified_deepseek_moe.save_pretrained(f'/MoEITS/simplified_models/deepseek-v2-lite-f{factor}-m{mode}/')
+        simplified_deepseek_moe.save_pretrained(f'/MoEITS/simplified_models/deepseek-v2-lite-chat-f{factor}-m{mode}/')
     elif 'mixtral' in model_name:
         mixtral_simp_service = Mixtral8x7b_Simplification_Service("mistralai/Mixtral-8x7B-Instruct-v0.1", factor=factor)
         simplified_mixtral = mixtral_simp_service.simplify_original_model(mode=mode, name=model_name)
         print(f"Params: {count_trainable_parameters(simplified_mixtral)}")
         simplified_mixtral.save_pretrained(f'/MoEITS/simplified_models/mixtral_8x7b_instruct-f{factor}-m{mode}/')
     elif 'qwen1.5' in model_name:
-        qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
+        qwen_simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B-Chat", factor=factor)
         simplified_qwen = qwen_simp_service.simplify_original_model(mode=mode, name=model_name)
         print(f"Params: {count_trainable_parameters(simplified_qwen)}")
-        simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen2-moe-f{factor}-m{mode}/')
+        simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-m{mode}/')
 
