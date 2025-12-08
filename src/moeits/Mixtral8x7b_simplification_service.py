@@ -19,7 +19,7 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         self.nmi_base_path = nmi_base_path    
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=auth['token'])
-        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=auth['token'],  device_map="auto")
+        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, token=auth['token'],  device_map="auto", dtype=torch.float16)
         self.config_model = self.original_model.config.to_dict()
         self.layers = {}
         self.factor = factor

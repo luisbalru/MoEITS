@@ -11,7 +11,7 @@ import torch
 
 
 class DeepSeekMoE_Simplification_Service(MoEITS_Simplification_Service):
-    def __init__(self, model_name, factor=1.5, output_base_path='', config_path='utils/config.json'):
+    def __init__(self, model_name, factor=1.5, output_base_path='', config_path='/MoEITS/utils/config.json'):
         with open(config_path, 'r') as f:
             config = json.load(f)
         self.model_name = model_name
