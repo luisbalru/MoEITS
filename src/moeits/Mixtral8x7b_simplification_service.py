@@ -56,6 +56,8 @@ class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
         self.config_model['num_experts_by_block'] = num_experts
         print("Creating new simplified model...")
         self.simplified_model = MixtralForCausalLM(MixtralConfig(**self.config_model))
+        self.simplified_model.post_init()
+        self.simplified_model.to('cpu')
 
     def _set_weights_to_new_model(self, names):
         print("Embedding tokens")
