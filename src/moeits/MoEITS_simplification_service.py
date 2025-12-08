@@ -56,7 +56,7 @@ class MoEITS_Simplification_Service(ABC):
             nmi_encoder = self.layers[k]
             remaining_experts = self._simplify_block(nmi_encoder)
             experts.append(len(remaining_experts))
-            name_experts.append(remaining_experts)
+            name_experts.append(remaining_experts.tolist())
         
         return experts, name_experts
     
@@ -92,6 +92,8 @@ class MoEITS_Simplification_Service(ABC):
             return None
         self.name_experts = name_experts
         print(self.name_experts)
+        print(self.name_experts.tolist())
+        input()
         self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
         return self.simplified_model
