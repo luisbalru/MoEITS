@@ -12,7 +12,7 @@ import os
 
 
 class Mixtral8x7b_Simplification_Service(MoEITS_Simplification_Service):
-    def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='utils/config.json', nmi_base_path = '/MoEITS/NMI_matrices/'):
+    def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='/MoEITS/utils/config.json', nmi_base_path = '/MoEITS/NMI_matrices/'):
         with open(auth_path, 'r') as f:
             auth = json.load(f)
 
