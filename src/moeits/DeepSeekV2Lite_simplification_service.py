@@ -30,14 +30,19 @@ class DeepSeekV2Lite_Simplification_Service(MoEITS_Simplification_Service):
         print(f"Saving NMI info to file {os.path.join(self.nmi_base_path, name+'.npz')}...")
         np.savez_compressed(os.path.join(self.nmi_base_path, name+'.npz'), **self.layers)
 
-    def _get_mutual_information_metrics(self):
-        #TODO Completar comprobando si está el fichero en nmi_base_path
-        print("Getting NMI metrics...")
-        num_layers = len(self.original_model.model.layers)
-        for i in range(1, num_layers):
-            experts = self.original_model.model.layers[i].mlp.experts
-            nmi = self._calculate_NMI_experts(experts)
-            self.layers['L_'+str(i)] = nmi
+    def _get_mutual_information_metrics(self, name):
+        nmi_info = os.listdir(self.nmi_base_path)
+        if name+'.npz' in nmi_info:
+            print("Loading NMI metrics...")
+            self.layers = dict(np.load(os.path.join(self.nmi_base_path, name+'.npz')))
+        else:
+            print("Getting NMI metrics...")
+            num_layers = len(self.original_model.model.layers)
+            for i in range(1, num_layers):
+                experts = self.original_model.model.layers[i].mlp.experts
+                nmi = self._calculate_NMI_experts(experts)
+                self.layers['L_'+str(i)] = nmi
+            self._save_NMI_matrix(name)
     
     def _calculate_NMI_experts(self, experts):
         results = np.zeros((len(experts), len(experts)))
