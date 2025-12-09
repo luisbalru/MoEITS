@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     if 'deepseek' in model_name:
         deepseek_simp_service = DeepSeekV2Lite_Simplification_Service("deepseek-ai/DeepSeek-V2-Lite-Chat", factor=factor)
-        simplified_deepseek_moe = deepseek_simp_service.simplify_original_model()
+        simplified_deepseek_moe = deepseek_simp_service.simplify_original_model(mode=mode, name=model_name)
         print(f"Params: {count_trainable_parameters(simplified_deepseek_moe)}")
         simplified_deepseek_moe.save_pretrained(f'/MoEITS/simplified_models/deepseek-v2-lite-chat-f{factor}-m{mode}/')
     elif 'mixtral' in model_name:
