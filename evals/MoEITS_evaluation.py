@@ -18,14 +18,15 @@ class MoEITSEvaluation(DeepEvalBaseLLM):
         self.tokenizer.padding_side = "left" 
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
-            
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            device_map="auto",
-            dtype=torch.float16, 
-            trust_remote_code=True,
-            attn_implementation="eager"        
-        )
+        
+        if 'qwen1.5' in model_path:
+            self.model = Qwen2MoeForCausalLM.from_pretrained(
+                model_path,
+                device_map="auto",
+                dtype=torch.float16, 
+                trust_remote_code=True,
+                attn_implementation="eager"        
+            )
         self.model.eval()
 
     def load_model(self):
