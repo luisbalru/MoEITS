@@ -1,16 +1,17 @@
 from deepeval.models.base_model import DeepEvalBaseLLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from moeits.models.qwen2_moe import Qwen2MoeForCausalLM
 import torch
 import re
 from typing import List
 
 class MoEITSEvaluation(DeepEvalBaseLLM):
-    def __init__(self, model_path="Qwen/Qwen1.5-MoE-A2.7B"):
+    def __init__(self, model_path, tokenizer_path="Qwen/Qwen1.5-MoE-A2.7B"):
         self.model_path = model_path
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
         print(f"🌊 Loading Model: {model_path} on {self.device}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
 
         # CRITICAL FOR BATCHING: Set padding side to left for decoder-only models
