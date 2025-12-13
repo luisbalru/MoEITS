@@ -54,8 +54,8 @@ def test_layers_weights_saving_loading_qwen_simplification_service():
     aux_model = simp_service.simplify_original_model(mode='test', name = "qwen1.5")
     aux_model.save_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-test/')
 
-    simp_model = Qwen2MoeForCausalLM.from_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-test/')
-    
+    simp_model = Qwen2MoeForCausalLM.from_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-test/', device_map='auto')
+
     num_layers = len(simp_service.name_experts) == len(simp_model.model.layers)
 
     or_mod = simp_service.original_model
