@@ -49,7 +49,7 @@ def test_layers_weights_qwen_simplification_service():
     assert num_layers and same_weights and expert_weights
 
 def test_layers_weights_saving_loading_qwen_simplification_service():
-    factor = 10
+    factor = 20
     simp_service = Qwen2MoE_Simplification_Service("Qwen/Qwen1.5-MoE-A2.7B", factor=factor)
     aux_model = simp_service.simplify_original_model(mode='prod', name = "qwen1.5")
     aux_model.save_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-test/')
