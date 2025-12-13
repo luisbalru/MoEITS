@@ -62,36 +62,36 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
     def _set_weights_to_new_model(self, names):
         with torch.no_grad():
             print("Embedding tokens")
-            self.simplified_model.model.embed_tokens.weight.copy_(self.original_model.model.embed_tokens.weight)
+            self.simplified_model.model.embed_tokens.weight.detach().copy_(self.original_model.model.embed_tokens.weight)
             print("Layers")
 
             for i in range(0, len(self.original_model.model.layers)):
                 names_experts = names[i]
-                self.simplified_model.model.layers[i].self_attn.q_proj.weight.copy_(self.original_model.model.layers[i].self_attn.q_proj.weight)
-                self.simplified_model.model.layers[i].self_attn.k_proj.weight.copy_(self.original_model.model.layers[i].self_attn.k_proj.weight)
-                self.simplified_model.model.layers[i].self_attn.v_proj.weight.copy_(self.original_model.model.layers[i].self_attn.v_proj.weight)
-                self.simplified_model.model.layers[i].self_attn.o_proj.weight.copy_(self.original_model.model.layers[i].self_attn.o_proj.weight)
+                self.simplified_model.model.layers[i].self_attn.q_proj.weight.detach().copy_(self.original_model.model.layers[i].self_attn.q_proj.weight)
+                self.simplified_model.model.layers[i].self_attn.k_proj.weight.detach().copy_(self.original_model.model.layers[i].self_attn.k_proj.weight)
+                self.simplified_model.model.layers[i].self_attn.v_proj.weight.detach().copy_(self.original_model.model.layers[i].self_attn.v_proj.weight)
+                self.simplified_model.model.layers[i].self_attn.o_proj.weight.detach().copy_(self.original_model.model.layers[i].self_attn.o_proj.weight)
 
-                self.simplified_model.model.layers[i].mlp.gate.weight.copy_(self.original_model.model.layers[i].mlp.gate.weight[names_experts,:])
+                self.simplified_model.model.layers[i].mlp.gate.weight.detach().copy_(self.original_model.model.layers[i].mlp.gate.weight[names_experts,:])
 
-                self.simplified_model.model.layers[i].mlp.shared_expert.gate_proj.weight.copy_(self.original_model.model.layers[i].mlp.shared_expert.gate_proj.weight)
-                self.simplified_model.model.layers[i].mlp.shared_expert.up_proj.weight.copy_(self.original_model.model.layers[i].mlp.shared_expert.up_proj.weight)
-                self.simplified_model.model.layers[i].mlp.shared_expert.down_proj.weight.copy_(self.original_model.model.layers[i].mlp.shared_expert.down_proj.weight)
+                self.simplified_model.model.layers[i].mlp.shared_expert.gate_proj.weight.detach().copy_(self.original_model.model.layers[i].mlp.shared_expert.gate_proj.weight)
+                self.simplified_model.model.layers[i].mlp.shared_expert.up_proj.weight.detach().copy_(self.original_model.model.layers[i].mlp.shared_expert.up_proj.weight)
+                self.simplified_model.model.layers[i].mlp.shared_expert.down_proj.weight.detach().copy_(self.original_model.model.layers[i].mlp.shared_expert.down_proj.weight)
 
-                self.simplified_model.model.layers[i].mlp.shared_expert_gate.weight.copy_(self.original_model.model.layers[i].mlp.shared_expert_gate.weight)
+                self.simplified_model.model.layers[i].mlp.shared_expert_gate.weight.detach().copy_(self.original_model.model.layers[i].mlp.shared_expert_gate.weight)
 
 
-                self.simplified_model.model.layers[i].input_layernorm.weight.copy_(self.original_model.model.layers[i].input_layernorm.weight)
-                self.simplified_model.model.layers[i].post_attention_layernorm.weight.copy_(self.original_model.model.layers[i].post_attention_layernorm.weight)
+                self.simplified_model.model.layers[i].input_layernorm.weight.detach().copy_(self.original_model.model.layers[i].input_layernorm.weight)
+                self.simplified_model.model.layers[i].post_attention_layernorm.weight.detach().copy_(self.original_model.model.layers[i].post_attention_layernorm.weight)
             
-            self.simplified_model.model.norm.weight.copy_(self.original_model.model.norm.weight)
-            self.simplified_model.lm_head.weight.copy_(self.original_model.lm_head.weight)
+            self.simplified_model.model.norm.weight.detach().copy_(self.original_model.model.norm.weight)
+            self.simplified_model.lm_head.weight.detach().copy_(self.original_model.lm_head.weight)
 
  
     def _set_weights_to_experts(self, names):
         for i in range(0, len(self.original_model.model.layers)):
             names_experts = names[i]
             for j, e in enumerate(names_experts):
-                self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight.copy_(self.original_model.model.layers[i].mlp.experts[e].gate_proj.weight)
-                self.simplified_model.model.layers[i].mlp.experts[j].up_proj.weight.copy_(self.original_model.model.layers[i].mlp.experts[e].up_proj.weight)
-                self.simplified_model.model.layers[i].mlp.experts[j].down_proj.weight.copy_(self.original_model.model.layers[i].mlp.experts[e].down_proj.weight)
+                self.simplified_model.model.layers[i].mlp.experts[j].gate_proj.weight.detach().copy_(self.original_model.model.layers[i].mlp.experts[e].gate_proj.weight)
+                self.simplified_model.model.layers[i].mlp.experts[j].up_proj.weight.detach().copy_(self.original_model.model.layers[i].mlp.experts[e].up_proj.weight)
+                self.simplified_model.model.layers[i].mlp.experts[j].down_proj.weight.detach().copy_(self.original_model.model.layers[i].mlp.experts[e].down_proj.weight)
