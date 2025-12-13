@@ -63,7 +63,7 @@ def test_layers_weights_saving_loading_qwen_simplification_service():
     expert_names = simp_service.name_experts
 
     same_weights = True
-
+    same_weights = same_weights and torch.equal(simp_model.model.embed_tokens.weight, or_mod.model.embed_tokens.weight)
     for i in range(0, len(or_mod.model.layers)):
         names_experts = expert_names[i]
         same_weights = same_weights and torch.equal(simp_model.model.layers[i].self_attn.q_proj.weight, or_mod.model.layers[i].self_attn.q_proj.weight)
