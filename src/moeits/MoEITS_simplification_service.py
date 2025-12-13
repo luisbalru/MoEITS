@@ -5,6 +5,7 @@ import os
 from numpy import unravel_index
 import json
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 
 class MoEITS_Simplification_Service(ABC):
@@ -93,4 +94,5 @@ class MoEITS_Simplification_Service(ABC):
         self.name_experts = name_experts
         self._build_simplified_model(num_experts, name_experts)
         self._set_weights_to_simplified_model(name_experts)
+        self.simplified_model.generation_config = deepcopy(self.original_model.generation_config)
         return self.simplified_model

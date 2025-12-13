@@ -73,7 +73,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
                 self.simplified_model.model.layers[i].self_attn.q_proj.bias.detach().copy_(self.original_model.model.layers[i].self_attn.q_proj.bias)
                 self.simplified_model.model.layers[i].self_attn.k_proj.bias.detach().copy_(self.original_model.model.layers[i].self_attn.k_proj.bias)
                 self.simplified_model.model.layers[i].self_attn.v_proj.bias.detach().copy_(self.original_model.model.layers[i].self_attn.v_proj.bias)
-                
+
                 self.simplified_model.model.layers[i].self_attn.o_proj.weight.detach().copy_(self.original_model.model.layers[i].self_attn.o_proj.weight)
 
                 self.simplified_model.model.layers[i].mlp.gate.weight.detach().copy_(self.original_model.model.layers[i].mlp.gate.weight[names_experts,:])
