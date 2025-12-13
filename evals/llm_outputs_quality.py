@@ -1,6 +1,14 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from moeits.models.qwen2_moe import Qwen2MoeForCausalLM
 import sys
+import numpy as np
+
+def count_trainable_parameters(model):
+    model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+    params = sum([np.prod(p.size()) for p in model_parameters])
+    return params
+
+
 
 if __name__ == '__main__':
     tokenizer_path = sys.argv[1]
@@ -16,6 +24,7 @@ if __name__ == '__main__':
     print("Text: ", text)
 
     print("#################### Original Model")
+    print(f"Params: {count_trainable_parameters(or_model)}")
 
     inputs = tokenizer(text, return_tensors="pt")
     outputs = or_model.generate(**inputs.to(or_model.device), max_new_tokens=100)
@@ -24,7 +33,7 @@ if __name__ == '__main__':
     print(result)
 
     print("#################### Simplified Model")
-
+    print(f"Params: {count_trainable_parameters(simp_model)}")
     inputs = tokenizer(text, return_tensors="pt")
     outputs = simp_model.generate(**inputs.to(simp_model.device), max_new_tokens=100)
 
