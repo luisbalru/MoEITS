@@ -51,10 +51,16 @@ if __name__ == '__main__':
     freeze_all_but_router(model)
 
 
+    """
     dataset = load_dataset(
         "allenai/c4",
         "en",
         split="train[:1]"
+    )
+    """
+    dataset = load_dataset(
+        "HuggingFaceFW/fineweb-edu",
+        split="train[:30k]"
     )
 
     def tokenize_fn(example):
