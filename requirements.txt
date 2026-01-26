@@ -9,3 +9,4 @@ datasets
 deepeval
 lm-format-enforcer
 pytest
+deepspeed
