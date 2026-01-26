@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
         device_map="auto"
     )
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     dataset = load_dataset(
         "allenai/c4",
         "en",
-        split="train[:10000]"
+        split="train[:10]"
     )
 
     def tokenize_fn(example):
