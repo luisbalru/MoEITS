@@ -101,18 +101,19 @@ if __name__ == '__main__':
         train_dataset=dataset,
         data_collator=data_collator,
     )
-
+    print("TRAINING ROUTERS")
     trainer.train()
 
     # ROUTER + EXPERTS
     unfreeze_router_and_experts(model)
     trainer.args.learning_rate = 2e-5
+    print("TRAINING ROUTERS AND EXPERTS")
     trainer.train()
 
     # GLOBAL FINE TUNING
     for param in model.parameters():
         param.requires_grad = True
-
+    print("GLOBAL FINETUNING")
     trainer.args.learning_rate = 1e-5
     trainer.train()
 
