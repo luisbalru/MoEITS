@@ -54,7 +54,7 @@ if __name__ == '__main__':
     dataset = load_dataset(
         "allenai/c4",
         "en",
-        split="train[:10]"
+        split="train[:1]"
     )
 
     def tokenize_fn(example):
