@@ -36,8 +36,8 @@ def unfreeze_router_and_experts(model):
             param.requires_grad = True
 
 if __name__ == '__main__':
-    MODEL_PATH = "/path/a/tu/modelo_podado"
-    OUTPUT_PATH = "./moe_retrained"
+    MODEL_PATH = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    OUTPUT_PATH = "./models/prueba/mixtral_retrained"
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     tokenizer.pad_token = tokenizer.eos_token
