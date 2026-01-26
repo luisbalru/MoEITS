@@ -61,7 +61,7 @@ if __name__ == '__main__':
     dataset = load_dataset(
         "HuggingFaceFW/fineweb-edu",
         split="train[:0.0001%]",
-        cache_dir='datasets/'
+        cache_dir='/MoEITS/datasets/'
     )
 
     def tokenize_fn(example):
