@@ -60,7 +60,7 @@ if __name__ == '__main__':
     """
     dataset = load_dataset(
         "HuggingFaceFW/fineweb-edu",
-        split="train[:10]"
+        split="train[:1]"
     )
 
     def tokenize_fn(example):
