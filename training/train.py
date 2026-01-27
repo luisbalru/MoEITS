@@ -1,143 +1,175 @@
+# train_mixtral_lora_deepspeed.py
+
 import os
-from datasets import Dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments, DataCollatorForLanguageModeling
-import torch, gc
+import torch
+from datasets import load_dataset
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    TrainingArguments,
+    Trainer,
+    DataCollatorForLanguageModeling,
+)
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
-torch.cuda.empty_cache()
-gc.collect()
-# -----------------------------
-# 1️⃣ Configuración
-# -----------------------------
+# ------------- CONFIGURACIÓN BÁSICA -------------
+
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-OUTPUT_PATH = "./models/prueba/mixtral_retrained"
+OUTPUT_DIR = "./models/prueba/mixtral_retrained"
+USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
+MAX_SEQ_LEN = 4096  # contexto inicial razonable
+SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
+LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
 
-os.makedirs(OUTPUT_PATH, exist_ok=True)
+# Dataset de ejemplo: sustituye por uno de los generalistas que elijas.
+# Aquí asumo un dataset de tipo instruction ("prompt"/"response").
+DATASET_NAME = "HuggingFaceH4/instruction-dataset"
+DATASET_SPLIT = "train"  # o "test" según quieras
 
-# -----------------------------
-# 2️⃣ Tokenizer y modelo
-# -----------------------------
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", dtype="bfloat16")
-tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+# ------------- CARGA DE TOKENIZER Y MODELO -------------
 
-
-# -----------------------------
-# 3️⃣ Congelar todo excepto routers y expertos
-# -----------------------------
-for p in model.parameters():
-    p.requires_grad = False  # congelar todo
-
-# Función para habilitar routers y al menos 1 experto por capa
-def enable_gate_and_experts(model):
-    found = False
-    for module in model.modules():
-        # Routers
-        if hasattr(module, "gate"):
-            for p in module.gate.parameters():
-                p.requires_grad = True
-            found = True
-        # Experts (solo el primero de cada capa)
-        if hasattr(module, "experts") and len(module.experts) > 0:
-            for i in range(3):
-                for p in module.experts[i].parameters():
-                    p.requires_grad = True
-        found = True
-    if not found:
-        raise RuntimeError("No routers or experts found in the model.")
-    print("✅ Routers and first expert per layer are trainable.")
-
-enable_gate_and_experts(model)
-
-model.gradient_checkpointing_enable()
-
-# -----------------------------
-# 4 Dataset sintético
-# -----------------------------
-texts = ["Testing Mixtral8X7B pipeline with DeepSpeed."] * 500  # mínimo seguro para debug
-
-dataset = Dataset.from_dict({"text": texts})
-
-def tokenize_fn(example):
-    return tokenizer(
-        example["text"],
-        truncation=True,
-        padding="max_length",
-        max_length=32  # ⚡ short for testing, avoids OOM and shape issues
-    )
-
-dataset = dataset.map(
-    tokenize_fn,
-    batched=True,
-    remove_columns=["text"]
+tokenizer = AutoTokenizer.from_pretrained(
+    MODEL_NAME,
+    use_fast=True,
+    padding_side="right",
 )
 
-# -----------------------------
-# 4️⃣ Collator
-# -----------------------------
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+load_kwargs = {}
+if USE_4BIT:
+    load_kwargs.update(
+        {
+            "load_in_4bit": True,
+            "device_map": "auto",
+            "torch_dtype": torch.float16,
+        }
+    )
+else:
+    load_kwargs.update(
+        {
+            "device_map": "auto",
+            "torch_dtype": torch.bfloat16,
+        }
+    )
+
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+
+if USE_4BIT:
+    model = prepare_model_for_kbit_training(model)
+
+# Config LoRA: ajusta `target_modules` a los nombres reales en Mixtral
+lora_config = LoraConfig(
+    r=64,
+    lora_alpha=16,
+    lora_dropout=0.1,
+    bias="none",
+    task_type="CAUSAL_LM",
+    target_modules=[
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+    ],
+)
+
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+
+# ------------- PREPARACIÓN DEL DATASET -------------
+
+# Cargamos un dataset generalista; en la práctica, selecciona uno concreto
+raw_dataset = load_dataset(DATASET_NAME, split=DATASET_SPLIT)
+
+# Función de formateo: ajusta según los campos reales del dataset
+def format_example(example):
+    prompt = example.get("prompt") or ""
+    input_text = example.get("input") or ""
+    completion = example.get("completion") or ""
+
+    # Plantilla sencilla estilo instruct
+    if input_text:
+        full_prompt = (
+            "Instruction:\n"
+            f"{prompt}\n\n"
+            "Input:\n"
+            f"{input_text}\n\n"
+            "Response:\n"
+        )
+    else:
+        full_prompt = (
+            "Instruction:\n"
+            f"{prompt}\n\n"
+            "Response:\n"
+        )
+
+    full_text = full_prompt + completion + tokenizer.eos_token
+    return {"text": full_text}
+
+
+formatted = raw_dataset.map(format_example, remove_columns=raw_dataset.column_names)
+
+def tokenize_fn(batch):
+    return tokenizer(
+        batch["text"],
+        max_length=MAX_SEQ_LEN,
+        truncation=True,
+        padding="max_length",
+    )
+
+tokenized = formatted.map(tokenize_fn, batched=True, remove_columns=["text"])
+
+# Dataset pequeño (sanity check)
+small_dataset = tokenized.select(range(min(SMALL_DATASET_SAMPLES, len(tokenized))))
+
+# Dataset grande (para más adelante)
+large_dataset = tokenized  # o .select(...) si quieres limitar
+
 data_collator = DataCollatorForLanguageModeling(
     tokenizer=tokenizer,
     mlm=False,
-    pad_to_multiple_of=8  # important for bfloat16 & DeepSpeed
 )
 
-# -----------------------------
-# 5️⃣ Custom Trainer
-# -----------------------------
-class MoeTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
-        outputs = model(**inputs)
-        loss = outputs.loss
+# ------------- CONFIGURACIÓN DEEPSPEED + TRAINER -------------
 
-        # Handle optional MoE aux losses safely
-        aux_loss = getattr(outputs, "router_aux_loss", None) or getattr(outputs, "aux_loss", None)
-        if aux_loss is not None and aux_loss.numel() > 0:
-            loss = loss + 0.01 * aux_loss
+# Fichero de DeepSpeed (ejemplo ZeRO-2 para LoRA)
+# Guarda esto como deepspeed_config_zero2.json en el mismo directorio.
+DEEPSPEED_CONFIG_PATH = "ds_config.json"
 
-        return (loss, outputs) if return_outputs else loss
-
-# -----------------------------
-# 6️⃣ Sanity check trainable params
-# -----------------------------
-trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
-total = sum(p.numel() for p in model.parameters())
-print(f"Trainable parameters: {trainable}/{total}")
-if trainable == 0:
-    raise RuntimeError("No trainable parameters connected to the loss. Check model requires_grad flags.")
-
-# -----------------------------
-# 7️⃣ TrainingArguments
-# -----------------------------
 training_args = TrainingArguments(
-    output_dir=OUTPUT_PATH,
+    output_dir=OUTPUT_DIR,
     per_device_train_batch_size=1,
-    gradient_accumulation_steps=8,
-    learning_rate=5e-5,
-    lr_scheduler_type="cosine",
-    warmup_ratio=0.05,
-    num_train_epochs=1,
-    logging_steps=1,
-    save_steps=1000,
+    gradient_accumulation_steps=16,  # effective batch 16
+    learning_rate=2e-4,
+    num_train_epochs=1.0,
+    logging_steps=10,
+    save_steps=500,
     save_total_limit=2,
-    bf16=True,
-    optim="adamw_torch",
-    max_grad_norm=1.0,
+    bf16=not USE_4BIT,  # si estás en H200, usa bf16 cuando no sea 4bit
+    fp16=False,
+    deepspeed=DEEPSPEED_CONFIG_PATH,
     report_to="none",
-    deepspeed="./ds_config.json",  # ⚡ make sure ds_config.json exists
+    gradient_checkpointing=True,
+    optim="adamw_torch",
+    warmup_ratio=0.03,
+    lr_scheduler_type="cosine",
 )
 
-# -----------------------------
-# 8️⃣ Trainer initialization
-# -----------------------------
-trainer = MoeTrainer(
+trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=dataset,
-    data_collator=data_collator
+    train_dataset=small_dataset,
+    data_collator=data_collator,
 )
 
-# -----------------------------
-# 9️⃣ Start training
-# -----------------------------
-print("🚀 Starting training...")
-trainer.train()
-print("✅ Training completed successfully!")
+if __name__ == "__main__":
+    trainer.train()
+    trainer.save_model(OUTPUT_DIR)
+    tokenizer.save_pretrained(OUTPUT_DIR)
+
+    # Cuando el pipeline funcione, cambia `train_dataset=large_dataset`
+    # y ajusta epochs/lr según tus necesidades.
