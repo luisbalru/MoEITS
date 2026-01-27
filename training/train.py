@@ -17,7 +17,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 OUTPUT_DIR = "./models/prueba/mixtral_retrained"
 USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
-MAX_SEQ_LEN = 2048  # contexto inicial razonable
+MAX_SEQ_LEN = 1024  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
 
@@ -172,6 +172,7 @@ training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=2,  # sube a 2 sin checkpointing
     gradient_accumulation_steps=8,   # effective batch 16
+    max_steps=100,
     learning_rate=2e-4,
     num_train_epochs=1,
     logging_steps=10,
@@ -200,9 +201,14 @@ trainer = Trainer(
 )
 
 if __name__ == "__main__":
+    import gc
     import torch
+
+    gc.collect()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
+
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
     trainer.train()
     trainer.save_model(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
