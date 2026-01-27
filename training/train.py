@@ -129,7 +129,25 @@ small_dataset = tokenized.select(range(min(SMALL_DATASET_SAMPLES, len(tokenized)
 # Dataset grande (para más adelante)
 large_dataset = tokenized  # o .select(...) si quieres limitar
 
-data_collator = DataCollatorForLanguageModeling(
+from dataclasses import dataclass
+from typing import Any, Dict, List
+
+@dataclass
+class CustomDataCollator:
+    tokenizer: Any
+    
+    def __call__(self, examples: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        batch = self.tokenizer.pad(examples, return_tensors="pt")
+        
+        # Asegura que labels = input_ids, con -100 en padding
+        labels = batch["input_ids"].clone()
+        labels[labels == self.tokenizer.pad_token_id] = -100
+        
+        batch["labels"] = labels
+        return batch
+
+
+data_collator = CustomDataCollator(
     tokenizer=tokenizer,
     mlm=False,
 )
@@ -140,24 +158,28 @@ data_collator = DataCollatorForLanguageModeling(
 # Guarda esto como deepspeed_config_zero2.json en el mismo directorio.
 DEEPSPEED_CONFIG_PATH = "ds_config.json"
 
+# ← TrainingArguments corregidos
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=1,
-    gradient_accumulation_steps=16,  # effective batch 16
+    gradient_accumulation_steps=16,
     learning_rate=2e-4,
-    num_train_epochs=1.0,
+    num_train_epochs=1,
     logging_steps=10,
     save_steps=500,
     save_total_limit=2,
-    bf16=not USE_4BIT,  # si estás en H200, usa bf16 cuando no sea 4bit
-    fp16=False,
+    bf16=True,
     deepspeed=DEEPSPEED_CONFIG_PATH,
     report_to="none",
-    gradient_checkpointing=True,
+    gradient_checkpointing=True,  # ahora sí funciona
     optim="adamw_torch",
     warmup_ratio=0.03,
     lr_scheduler_type="cosine",
+    dataloader_num_workers=0,  # evita problemas multiprocessing
 )
+
+# ← Explícito antes del Trainer
+model.config.use_cache = False
 
 trainer = Trainer(
     model=model,
