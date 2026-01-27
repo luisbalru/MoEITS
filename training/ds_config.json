@@ -1,16 +1,8 @@
 {
   "zero_optimization": {
-    "stage": 3,
-    "offload_param": {
-      "device": "cpu",
-      "pin_memory": true
-    },
-    "offload_optimizer": {
-      "device": "cpu",
-      "pin_memory": true
-    }
+    "stage": 3
   },
   "bf16": { "enabled": true },
-  "train_batch_size": 8,
+  "train_batch_size": 1,
   "gradient_accumulation_steps": 8
 }
