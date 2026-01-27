@@ -59,9 +59,9 @@ if __name__ == '__main__':
     )
     """
     dataset = load_dataset(
-    "stas/openwebtext-10k",
-    split="train"
-)
+        "tiiuae/falcon-refinedweb-mini",
+        split="train"
+    )
 
     def tokenize_fn(example):
         return tokenizer(
