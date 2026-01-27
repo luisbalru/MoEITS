@@ -53,7 +53,11 @@ if __name__ == '__main__':
 
     freeze_all_but_router(model)
 
-
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total = sum(p.numel() for p in model.parameters())
+    print(f"Trainable parameters: {trainable} / {total}")
+    if trainable == 0:
+        raise RuntimeError("No trainable parameters connected to loss")
     """
     dataset = load_dataset(
         "allenai/c4",
@@ -82,7 +86,8 @@ if __name__ == '__main__':
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
-        mlm=False
+        mlm=False,
+        pad_to_multiple_of=8
     )
 
     training_args = TrainingArguments(
