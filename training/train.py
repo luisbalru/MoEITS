@@ -16,8 +16,36 @@ os.makedirs(OUTPUT_PATH, exist_ok=True)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", dtype="bfloat16")
 tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
+
 # -----------------------------
-# 3️⃣ Dataset sintético
+# 3️⃣ Congelar todo excepto routers y expertos
+# -----------------------------
+for p in model.parameters():
+    p.requires_grad = False  # congelar todo
+
+# Función para habilitar routers y al menos 1 experto por capa
+def enable_gate_and_experts(model):
+    found = False
+    for module in model.modules():
+        # Routers
+        if hasattr(module, "gate"):
+            for p in module.router.parameters():
+                p.requires_grad = True
+            found = True
+        # Experts (solo el primero de cada capa)
+        if hasattr(module, "experts") and len(module.experts) > 0:
+            for p in module.experts[0].parameters():
+                p.requires_grad = True
+            found = True
+    if not found:
+        raise RuntimeError("No routers or experts found in the model.")
+    print("✅ Routers and first expert per layer are trainable.")
+
+enable_gate_and_experts(model)
+
+# -----------------------------
+# 4 Dataset sintético
 # -----------------------------
 texts = ["Testing Mixtral8X7B pipeline with DeepSpeed."] * 500  # mínimo seguro para debug
 
