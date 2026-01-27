@@ -43,14 +43,14 @@ if USE_4BIT:
         {
             "load_in_4bit": True,
             "device_map": "auto",
-            "torch_dtype": torch.float16,
+            "dtype": torch.float16,
         }
     )
 else:
     load_kwargs.update(
         {
             "device_map": "auto",
-            "torch_dtype": torch.bfloat16,
+            "dtype": torch.bfloat16,
         }
     )
 
@@ -147,10 +147,7 @@ class CustomDataCollator:
         return batch
 
 
-data_collator = CustomDataCollator(
-    tokenizer=tokenizer,
-    mlm=False,
-)
+data_collator = CustomDataCollator(tokenizer)
 
 # ------------- CONFIGURACIÓN DEEPSPEED + TRAINER -------------
 
