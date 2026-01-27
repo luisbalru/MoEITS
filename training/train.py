@@ -55,7 +55,8 @@ else:
     )
 
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
-
+print(model)
+input()
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
 
