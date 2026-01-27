@@ -75,7 +75,7 @@ if __name__ == '__main__':
             example["text"],
             truncation=True,
             padding="max_length",
-            max_length=2048
+            max_length=32
         )
 
     dataset = dataset.map(
