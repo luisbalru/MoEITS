@@ -1,7 +1,10 @@
 import os
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments, DataCollatorForLanguageModeling
+import torch, gc
 
+torch.cuda.empty_cache()
+gc.collect()
 # -----------------------------
 # 1️⃣ Configuración
 # -----------------------------
