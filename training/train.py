@@ -58,8 +58,12 @@ else:
             "dtype": torch.bfloat16,
         }
     )
+import deepspeed
+from deepspeed.utils import zero_to_fp32
 
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+with deepspeed.zero.Init():
+    model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+    
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
 
