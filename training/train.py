@@ -59,10 +59,9 @@ if __name__ == '__main__':
     )
     """
     dataset = load_dataset(
-        "HuggingFaceFW/fineweb-edu",
-        split="train[:0.0001%]",
-        cache_dir='/MoEITS/datasets/'
-    )
+    "stas/openwebtext-10k",
+    split="train"
+)
 
     def tokenize_fn(example):
         return tokenizer(
