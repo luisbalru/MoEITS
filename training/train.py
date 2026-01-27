@@ -14,8 +14,8 @@ os.makedirs(OUTPUT_PATH, exist_ok=True)
 # 2️⃣ Tokenizer y modelo
 # -----------------------------
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", torch_dtype="bfloat16")
-
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", dtype="bfloat16")
+tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 # -----------------------------
 # 3️⃣ Dataset sintético
 # -----------------------------
