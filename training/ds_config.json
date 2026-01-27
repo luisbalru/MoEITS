@@ -21,6 +21,7 @@
     "gather_16bit_weights_on_model_save": true
   },
   
-  "bf16": {"enabled": true},
+  "bf16": {"enabled": false},
+  "fp16": {"enabled": false},
   "gradient_checkpointing": false
 }
