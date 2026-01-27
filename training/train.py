@@ -17,7 +17,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 OUTPUT_DIR = "./models/prueba/mixtral_retrained"
 USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
-MAX_SEQ_LEN = 1024  # contexto inicial razonable
+MAX_SEQ_LEN = 256  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
 
@@ -58,12 +58,9 @@ else:
             "dtype": torch.bfloat16,
         }
     )
-import deepspeed
-from deepspeed.utils import zero_to_fp32
 
-with deepspeed.zero.Init():
-    model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
-    
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
 
@@ -175,11 +172,11 @@ DEEPSPEED_CONFIG_PATH = "ds_config.json"
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=1,
-    gradient_accumulation_steps=16,
+    gradient_accumulation_steps=4,
     
     learning_rate=2e-4,
     num_train_epochs=1,
-    max_steps=100,  # ← test corto
+    max_steps=10,  # ← test corto
     
     logging_steps=5,
     save_steps=50,
