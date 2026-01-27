@@ -3,6 +3,6 @@
     "stage": 3
   },
   "bf16": { "enabled": true },
-  "train_batch_size": 1,
+  "train_batch_size": "auto",
   "gradient_accumulation_steps": 8
 }
