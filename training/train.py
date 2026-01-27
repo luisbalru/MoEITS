@@ -27,12 +27,12 @@ class MoeTrainer(Trainer):
 def freeze_all_but_router(model):
         for name, param in model.named_parameters():
             param.requires_grad = False
-            if "router" in name:
+            if "gate" in name:
                 param.requires_grad = True
 
 def unfreeze_router_and_experts(model):
     for name, param in model.named_parameters():
-        if "router" in name or "experts" in name:
+        if "gate" in name or "experts" in name:
             param.requires_grad = True
 
 if __name__ == '__main__':
