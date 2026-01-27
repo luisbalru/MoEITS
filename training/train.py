@@ -30,7 +30,7 @@ def enable_gate_and_experts(model):
     for module in model.modules():
         # Routers
         if hasattr(module, "gate"):
-            for p in module.router.parameters():
+            for p in module.gate.parameters():
                 p.requires_grad = True
             found = True
         # Experts (solo el primero de cada capa)
