@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingA
 # -----------------------------
 # 1️⃣ Configuración
 # -----------------------------
-MODEL_NAME = "mistral/Mixtral-8x7B-Instruct"
+MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 OUTPUT_PATH = "./models/prueba/mixtral_retrained"
 
 os.makedirs(OUTPUT_PATH, exist_ok=True)
