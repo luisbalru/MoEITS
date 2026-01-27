@@ -55,8 +55,6 @@ else:
     )
 
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
-print(model)
-input()
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
 
@@ -72,9 +70,10 @@ lora_config = LoraConfig(
         "k_proj",
         "v_proj",
         "o_proj",
-        "gate_proj",
-        "up_proj",
-        "down_proj",
+        "gate",
+        "w1",
+        "w2",
+        "w3"
     ],
 )
 
