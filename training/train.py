@@ -13,20 +13,16 @@ from transformers import (
 
 class MoeTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
-        """
-        compute_loss override compatible con HF >=4.40
-        **kwargs permite recibir argumentos extra (como num_items_in_batch)
-        """
         outputs = model(**inputs)
         loss = outputs.loss
-        print(outputs)
-        input()
 
-        # Compatibilidad MoE
-        if hasattr(outputs, "router_aux_loss"):
-            loss = loss + 0.01 * outputs.router_aux_loss
-        elif hasattr(outputs, "aux_loss"):
-            loss = loss + 0.01 * outputs.aux_loss
+        # Compatibilidad MoE: solo sumar aux_loss si existe
+        aux_loss = getattr(outputs, "router_aux_loss", None)
+        if aux_loss is None:
+            aux_loss = getattr(outputs, "aux_loss", None)
+
+        if aux_loss is not None:
+            loss = loss + 0.01 * aux_loss  # factor de regularización MoE
 
         return (loss, outputs) if return_outputs else loss
 
