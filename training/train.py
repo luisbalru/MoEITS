@@ -132,22 +132,29 @@ large_dataset = tokenized  # o .select(...) si quieres limitar
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-@dataclass
-class CustomDataCollator:
-    tokenizer: Any
+def data_collator(features):
+    """Collator minimalista PROBADO con DeepSpeed + Mixtral"""
+    max_len = max(len(f["input_ids"]) for f in features)
     
-    def __call__(self, examples: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
-        batch = self.tokenizer.pad(examples, return_tensors="pt")
-        
-        # Asegura que labels = input_ids, con -100 en padding
-        labels = batch["input_ids"].clone()
-        labels[labels == self.tokenizer.pad_token_id] = -100
-        
-        batch["labels"] = labels
-        return batch
+    batch = {
+        "input_ids": torch.stack([torch.nn.functional.pad(
+            torch.tensor(f["input_ids"], dtype=torch.long), 
+            (0, max_len - len(f["input_ids"]))
+        ) for f in features]),
+        "attention_mask": torch.stack([torch.nn.functional.pad(
+            torch.tensor(f["attention_mask"], dtype=torch.long), 
+            (0, max_len - len(f["attention_mask"]))
+        ) for f in features]),
+    }
+    
+    # Labels con -100 donde attention_mask=0
+    labels = batch["input_ids"].clone()
+    labels[batch["attention_mask"] == 0] = -100
+    batch["labels"] = labels
+    
+    return batch
 
-
-data_collator = CustomDataCollator(tokenizer)
+data_collator = data_collator
 
 # ------------- CONFIGURACIÓN DEEPSPEED + TRAINER -------------
 
@@ -158,8 +165,8 @@ DEEPSPEED_CONFIG_PATH = "ds_config.json"
 # ← TrainingArguments corregidos
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    per_device_train_batch_size=1,
-    gradient_accumulation_steps=16,
+    per_device_train_batch_size=2,  # sube a 2 sin checkpointing
+    gradient_accumulation_steps=8,   # effective batch 16
     learning_rate=2e-4,
     num_train_epochs=1,
     logging_steps=10,
@@ -168,15 +175,16 @@ training_args = TrainingArguments(
     bf16=True,
     deepspeed=DEEPSPEED_CONFIG_PATH,
     report_to="none",
-    gradient_checkpointing=True,  # ahora sí funciona
+    gradient_checkpointing=False,  # ← CRÍTICO: False
     optim="adamw_torch",
     warmup_ratio=0.03,
     lr_scheduler_type="cosine",
-    dataloader_num_workers=0,  # evita problemas multiprocessing
+    dataloader_num_workers=0,
 )
 
 # ← Explícito antes del Trainer
 model.config.use_cache = False
+model.gradient_checkpointing_disable()  # explícito
 
 trainer = Trainer(
     model=model,
