@@ -58,10 +58,10 @@ if __name__ == '__main__':
         split="train[:1]"
     )
     """
-    dataset = load_dataset(
-        "tiiuae/falcon-refinedweb-mini",
-        split="train"
-    )
+    from datasets import Dataset
+    dataset = Dataset.from_dict({
+        "text": ["Testing MoE retraining pipeline."] * 5000
+    })  
 
     def tokenize_fn(example):
         return tokenizer(
