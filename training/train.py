@@ -45,6 +45,8 @@ def enable_gate_and_experts(model):
 
 enable_gate_and_experts(model)
 
+model.gradient_checkpointing_enable()
+
 # -----------------------------
 # 4 Dataset sintético
 # -----------------------------
