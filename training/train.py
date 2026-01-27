@@ -48,6 +48,9 @@ if __name__ == '__main__':
         device_map="auto"
     )
 
+    print(model)
+    input()
+
     freeze_all_but_router(model)
 
 
