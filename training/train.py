@@ -35,9 +35,10 @@ def enable_gate_and_experts(model):
             found = True
         # Experts (solo el primero de cada capa)
         if hasattr(module, "experts") and len(module.experts) > 0:
-            for p in module.experts[0].parameters():
-                p.requires_grad = True
-            found = True
+            for i in range(3):
+                for p in module.experts[i].parameters():
+                    p.requires_grad = True
+        found = True
     if not found:
         raise RuntimeError("No routers or experts found in the model.")
     print("✅ Routers and first expert per layer are trainable.")
