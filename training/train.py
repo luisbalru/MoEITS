@@ -1,136 +1,109 @@
 import os
-import torch
-from datasets import load_dataset
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    Trainer,
-    TrainingArguments,
-    DataCollatorForLanguageModeling
+from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments, DataCollatorForLanguageModeling
+
+# -----------------------------
+# 1️⃣ Configuración
+# -----------------------------
+MODEL_NAME = "mistral/Mixtral-8x7B-Instruct"
+OUTPUT_PATH = "./models/prueba/mixtral_retrained"
+
+os.makedirs(OUTPUT_PATH, exist_ok=True)
+
+# -----------------------------
+# 2️⃣ Tokenizer y modelo
+# -----------------------------
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", torch_dtype="bfloat16")
+
+# -----------------------------
+# 3️⃣ Dataset sintético
+# -----------------------------
+texts = ["Testing Mixtral8X7B pipeline with DeepSpeed."] * 500  # mínimo seguro para debug
+
+dataset = Dataset.from_dict({"text": texts})
+
+def tokenize_fn(example):
+    return tokenizer(
+        example["text"],
+        truncation=True,
+        padding="max_length",
+        max_length=32  # ⚡ short for testing, avoids OOM and shape issues
+    )
+
+dataset = dataset.map(
+    tokenize_fn,
+    batched=True,
+    remove_columns=["text"]
 )
 
+# -----------------------------
+# 4️⃣ Collator
+# -----------------------------
+data_collator = DataCollatorForLanguageModeling(
+    tokenizer=tokenizer,
+    mlm=False,
+    pad_to_multiple_of=8  # important for bfloat16 & DeepSpeed
+)
 
-
+# -----------------------------
+# 5️⃣ Custom Trainer
+# -----------------------------
 class MoeTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         outputs = model(**inputs)
         loss = outputs.loss
 
-        # Compatibilidad MoE: solo sumar aux_loss si existe
-        aux_loss = getattr(outputs, "router_aux_loss", None)
-        if aux_loss is None:
-            aux_loss = getattr(outputs, "aux_loss", None)
-
-        if aux_loss is not None:
-            loss = loss + 0.01 * aux_loss  # factor de regularización MoE
+        # Handle optional MoE aux losses safely
+        aux_loss = getattr(outputs, "router_aux_loss", None) or getattr(outputs, "aux_loss", None)
+        if aux_loss is not None and aux_loss.numel() > 0:
+            loss = loss + 0.01 * aux_loss
 
         return (loss, outputs) if return_outputs else loss
 
+# -----------------------------
+# 6️⃣ Sanity check trainable params
+# -----------------------------
+trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+total = sum(p.numel() for p in model.parameters())
+print(f"Trainable parameters: {trainable}/{total}")
+if trainable == 0:
+    raise RuntimeError("No trainable parameters connected to the loss. Check model requires_grad flags.")
 
-def freeze_all_but_router(model):
-        for name, param in model.named_parameters():
-            param.requires_grad = False
-            if "gate" in name:
-                param.requires_grad = True
+# -----------------------------
+# 7️⃣ TrainingArguments
+# -----------------------------
+training_args = TrainingArguments(
+    output_dir=OUTPUT_PATH,
+    per_device_train_batch_size=1,
+    gradient_accumulation_steps=8,
+    learning_rate=5e-5,
+    lr_scheduler_type="cosine",
+    warmup_ratio=0.05,
+    num_train_epochs=1,
+    logging_steps=1,
+    save_steps=1000,
+    save_total_limit=2,
+    bf16=True,
+    optim="adamw_torch",
+    max_grad_norm=1.0,
+    report_to="none",
+    deepspeed="./ds_config.json",  # ⚡ make sure ds_config.json exists
+)
 
-def unfreeze_router_and_experts(model):
-    for name, param in model.named_parameters():
-        if "gate" in name or "experts" in name:
-            param.requires_grad = True
+# -----------------------------
+# 8️⃣ Trainer initialization
+# -----------------------------
+trainer = MoeTrainer(
+    model=model,
+    args=training_args,
+    train_dataset=dataset,
+    data_collator=data_collator
+)
 
-if __name__ == '__main__':
-    MODEL_PATH = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-    OUTPUT_PATH = "./models/prueba/mixtral_retrained"
-
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    tokenizer.pad_token = tokenizer.eos_token
-
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH,
-        dtype=torch.bfloat16,
-        device_map="auto"
-    )
-
-    freeze_all_but_router(model)
-
-    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    total = sum(p.numel() for p in model.parameters())
-    print(f"Trainable parameters: {trainable} / {total}")
-    if trainable == 0:
-        raise RuntimeError("No trainable parameters connected to loss")
-    """
-    dataset = load_dataset(
-        "allenai/c4",
-        "en",
-        split="train[:1]"
-    )
-    """
-    from datasets import Dataset
-    dataset = Dataset.from_dict({
-        "text": ["Testing MoE retraining pipeline."] * 5000
-    })  
-
-    def tokenize_fn(example):
-        return tokenizer(
-            example["text"],
-            truncation=True,
-            padding="max_length",
-            max_length=32
-        )
-
-    dataset = dataset.map(
-        tokenize_fn,
-        batched=True,
-        remove_columns=["text"]
-    )
-
-    data_collator = DataCollatorForLanguageModeling(
-        tokenizer=tokenizer,
-        mlm=False,
-        pad_to_multiple_of=8
-    )
-
-    training_args = TrainingArguments(
-        output_dir=OUTPUT_PATH,
-        per_device_train_batch_size=1,
-        gradient_accumulation_steps=8,
-        learning_rate=5e-5,              # FASE A
-        lr_scheduler_type="cosine",
-        warmup_ratio=0.05,
-        num_train_epochs=1,
-        logging_steps=20,
-        save_steps=1000,
-        save_total_limit=2,
-        bf16=True,
-        optim="adamw_torch",
-        max_grad_norm=1.0,
-        report_to="none",
-        deepspeed="./ds_config.json"
-    )
-
-    # TRAINING ROUTERS
-    trainer = MoeTrainer(
-        model=model,
-        args=training_args,
-        train_dataset=dataset,
-        data_collator=data_collator,
-    )
-    print("TRAINING ROUTERS")
-    trainer.train()
-
-    # ROUTER + EXPERTS
-    unfreeze_router_and_experts(model)
-    trainer.args.learning_rate = 2e-5
-    print("TRAINING ROUTERS AND EXPERTS")
-    trainer.train()
-
-    # GLOBAL FINE TUNING
-    for param in model.parameters():
-        param.requires_grad = True
-    print("GLOBAL FINETUNING")
-    trainer.args.learning_rate = 1e-5
-    trainer.train()
-
-
-    trainer.save_model(OUTPUT_PATH)
-    tokenizer.save_pretrained(OUTPUT_PATH)
+# -----------------------------
+# 9️⃣ Start training
+# -----------------------------
+print("🚀 Starting training...")
+trainer.train()
+print("✅ Training completed successfully!")
