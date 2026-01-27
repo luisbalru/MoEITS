@@ -24,7 +24,7 @@ LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
 # Dataset de ejemplo: sustituye por uno de los generalistas que elijas.
 # Aquí asumo un dataset de tipo instruction ("prompt"/"response").
 DATASET_NAME = "HuggingFaceH4/instruction-dataset"
-DATASET_SPLIT = "train"  # o "test" según quieras
+DATASET_SPLIT = "test"  # o "test" según quieras
 
 # ------------- CARGA DE TOKENIZER Y MODELO -------------
 
