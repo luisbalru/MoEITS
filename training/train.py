@@ -170,23 +170,24 @@ DEEPSPEED_CONFIG_PATH = "ds_config.json"
 # ← TrainingArguments corregidos
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    per_device_train_batch_size=2,  # sube a 2 sin checkpointing
-    gradient_accumulation_steps=8,   # effective batch 16
-    max_steps=100,
+    per_device_train_batch_size=1,
+    gradient_accumulation_steps=16,
+    
     learning_rate=2e-4,
     num_train_epochs=1,
-    logging_steps=10,
-    save_steps=500,
+    max_steps=100,  # ← test corto
+    
+    logging_steps=5,
+    save_steps=50,
     save_total_limit=2,
-    bf16=False,
-    fp16=True,
-    deepspeed=DEEPSPEED_CONFIG_PATH,
-    report_to="none",
-    gradient_checkpointing=False,  # ← CRÍTICO: False
-    optim="adamw_torch",
-    warmup_ratio=0.03,
-    lr_scheduler_type="cosine",
+    
+    bf16=True,  # ← bf16 para QLoRA + H200
+    fp16=False,  # ← False
+    
+    deepspeed="ds_config.json",
+    gradient_checkpointing=False,
     dataloader_num_workers=0,
+    remove_unused_columns=False,
 )
 
 # ← Explícito antes del Trainer
