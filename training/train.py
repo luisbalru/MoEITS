@@ -12,17 +12,24 @@ from transformers import (
 
 
 class MoeTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        """
+        compute_loss override compatible con HF >=4.40
+        **kwargs permite recibir argumentos extra (como num_items_in_batch)
+        """
         outputs = model(**inputs)
         loss = outputs.loss
+        print(outputs)
+        input()
 
-        # Compatibilidad Mixtral / Qwen / DeepSeek
+        # Compatibilidad MoE
         if hasattr(outputs, "router_aux_loss"):
             loss = loss + 0.01 * outputs.router_aux_loss
         elif hasattr(outputs, "aux_loss"):
             loss = loss + 0.01 * outputs.aux_loss
 
         return (loss, outputs) if return_outputs else loss
+
 
 def freeze_all_but_router(model):
         for name, param in model.named_parameters():
@@ -47,9 +54,6 @@ if __name__ == '__main__':
         dtype=torch.bfloat16,
         device_map="auto"
     )
-
-    print(model)
-    input()
 
     freeze_all_but_router(model)
 
