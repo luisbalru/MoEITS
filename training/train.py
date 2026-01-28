@@ -10,6 +10,7 @@ from transformers import (
     Trainer,
     DataCollatorForLanguageModeling,
 )
+from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 # ------------- CONFIGURACIÓN BÁSICA -------------
@@ -41,14 +42,14 @@ load_kwargs = {}
 if USE_4BIT:
     load_kwargs.update(
         {
-            "load_in_4bit": True,
             "device_map": "auto",
             "dtype": torch.float16,
-            "quantization_config": {
-                "bnb_4bit_compute_dtype": torch.bfloat16,
-                "bnb_4bit_use_double_quant": True,
-                "bnb_4bit_quant_type": "nf4",
-            }
+            "quantization_config": BitsAndBytesConfig(
+                    load_in_4bit=True,                    # ← AQUÍ SÍ
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch.bfloat16,
+                    bnb_4bit_use_double_quant=True,
+                )
         }
     )
 else:
