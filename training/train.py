@@ -16,7 +16,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 OUTPUT_DIR = "./models/prueba/mixtral_retrained"
-USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
+USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 256  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
