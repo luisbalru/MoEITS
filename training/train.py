@@ -189,7 +189,7 @@ training_args = TrainingArguments(
     
     learning_rate=2e-4,
     num_train_epochs=3,
-    max_steps=10,  # ← test corto
+    max_steps=20,  # ← test corto
     
     logging_steps=5,
     save_steps=50,
