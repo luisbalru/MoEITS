@@ -211,7 +211,7 @@ model.gradient_checkpointing_disable()  # explícito
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=small_dataset,
+    train_dataset=large_dataset,
     data_collator=data_collator,
 )
 
