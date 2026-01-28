@@ -20,12 +20,12 @@ OUTPUT_DIR = "./models/prueba/mixtral_retrained"
 USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 1024  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
-LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
+LARGE_DATASET_SAMPLES = 500000  # dataset grande, para la segunda fase
 
 # Dataset de ejemplo: sustituye por uno de los generalistas que elijas.
 # Aquí asumo un dataset de tipo instruction ("prompt"/"response").
-DATASET_NAME = "HuggingFaceH4/instruction-dataset"
-DATASET_SPLIT = "test"  # o "test" según quieras
+DATASET_NAME = "teknium/OpenHermes-2.5"
+DATASET_SPLIT = "train"
 
 # ------------- CARGA DE TOKENIZER Y MODELO -------------
 
@@ -117,8 +117,20 @@ def format_example(example):
     full_text = full_prompt + completion + tokenizer.eos_token
     return {"text": full_text}
 
+def format_openhermes(example):
+    """OpenHermes usa 'instruction', 'input', 'output'"""
+    instruction = example["instruction"]
+    input_text = example.get("input") or ""
+    output = example["output"]
+    
+    if input_text:
+        text = f"Instruction:\n{instruction}\n\nInput:\n{input_text}\n\nResponse:\n{output}{tokenizer.eos_token}"
+    else:
+        text = f"Instruction:\n{instruction}\n\nResponse:\n{output}{tokenizer.eos_token}"
+    return {"text": text}
 
-formatted = raw_dataset.map(format_example, remove_columns=raw_dataset.column_names)
+
+formatted = raw_dataset.map(format_openhermes, remove_columns=raw_dataset.column_names)
 
 def tokenize_fn(batch):
     return tokenizer(
