@@ -15,7 +15,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 # ------------- CONFIGURACIÓN BÁSICA -------------
 
-MODEL_NAME = "simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"
+MODEL_NAME = "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"
 OUTPUT_DIR = "./models/prueba/qwen_retrained"
 USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 1024  # contexto inicial razonable
