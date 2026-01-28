@@ -18,7 +18,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 OUTPUT_DIR = "./models/prueba/mixtral_retrained"
 USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
-MAX_SEQ_LEN = 256  # contexto inicial razonable
+MAX_SEQ_LEN = 1024  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 200000  # dataset grande, para la segunda fase
 
@@ -131,7 +131,7 @@ def tokenize_fn(batch):
 tokenized = formatted.map(tokenize_fn, batched=True, remove_columns=["text"])
 
 # Dataset pequeño (sanity check)
-small_dataset = tokenized.select(range(min(SMALL_DATASET_SAMPLES, len(tokenized))))
+small_dataset = tokenized.select(range(min(LARGE_DATASET_SAMPLES, len(tokenized))))
 
 # Dataset grande (para más adelante)
 large_dataset = tokenized  # o .select(...) si quieres limitar
@@ -172,11 +172,11 @@ DEEPSPEED_CONFIG_PATH = "ds_config.json"
 # ← TrainingArguments corregidos
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    per_device_train_batch_size=1,
-    gradient_accumulation_steps=4,
+    per_device_train_batch_size=2,
+    gradient_accumulation_steps=8,
     
     learning_rate=2e-4,
-    num_train_epochs=1,
+    num_train_epochs=3,
     max_steps=10,  # ← test corto
     
     logging_steps=5,
