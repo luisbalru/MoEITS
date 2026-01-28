@@ -119,9 +119,9 @@ def format_example(example):
 
 def format_openhermes(example):
     """OpenHermes usa 'instruction', 'input', 'output'"""
-    instruction = example["instruction"]
+    instruction = example["conversations"][0]['value']
     input_text = example.get("input") or ""
-    output = example["output"]
+    output = example["conversations"][1]['value']
     
     if input_text:
         text = f"Instruction:\n{instruction}\n\nInput:\n{input_text}\n\nResponse:\n{output}{tokenizer.eos_token}"
