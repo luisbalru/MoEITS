@@ -10,3 +10,4 @@ deepeval
 lm-format-enforcer
 pytest
 deepspeed
+bitsandbytes
