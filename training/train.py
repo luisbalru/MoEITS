@@ -17,7 +17,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 # ------------- CONFIGURACIÓN BÁSICA -------------
 TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
-MODEL_NAME = "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"
+MODEL_NAME = "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod"
 OUTPUT_DIR = "./models/prueba/qwen_retrained"
 USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 1024  # contexto inicial razonable
@@ -66,7 +66,8 @@ else:
 
 model = Qwen2MoeForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
 
-
+print(model)
+input()
 
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
