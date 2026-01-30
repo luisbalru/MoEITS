@@ -64,14 +64,13 @@ else:
 
 #model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
 
-model = Qwen2MoeForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+model = Qwen2MoeForCausalLM.from_pretrained(MODEL_NAME, attn_implementation="eager", **load_kwargs)
 
-print(model)
-input()
 
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
 
+"""
 # Config LoRA: ajusta `target_modules` a los nombres reales en Mixtral
 lora_config = LoraConfig(
     r=64,
@@ -90,6 +89,22 @@ lora_config = LoraConfig(
         "w3"
     ],
 )
+"""
+# Config LoRA: ajusta `target_modules` a los nombres reales en Qwen
+lora_config = LoraConfig(
+    r=64,
+    lora_alpha=16,
+    lora_dropout=0.1,
+    bias="none",
+    task_type="CAUSAL_LM",
+    target_modules=[
+        "gate",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+    ],
+)
+
 
 model = get_peft_model(model, lora_config)
 model.print_trainable_parameters()
