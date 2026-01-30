@@ -32,7 +32,7 @@ DATASET_SPLIT = "train"
 # ------------- CARGA DE TOKENIZER Y MODELO -------------
 
 tokenizer = AutoTokenizer.from_pretrained(
-    MODEL_NAME,
+    TOKENIZER_NAME,
     use_fast=True,
     padding_side="right",
 )
