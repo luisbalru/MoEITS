@@ -10,6 +10,8 @@ from transformers import (
     Trainer,
     DataCollatorForLanguageModeling,
 )
+
+from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
@@ -60,7 +62,11 @@ else:
         }
     )
 
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+#model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+
+model = Qwen2MoeForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
+
+
 
 if USE_4BIT:
     model = prepare_model_for_kbit_training(model)
