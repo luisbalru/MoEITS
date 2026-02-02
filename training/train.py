@@ -19,7 +19,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
 
 USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
-MAX_SEQ_LEN = 4096  # contexto inicial razonable
+MAX_SEQ_LEN = 2048  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 500000  # dataset grande, para la segunda fase
 
