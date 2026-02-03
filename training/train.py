@@ -46,7 +46,7 @@ def train(model_name, output_dir):
     if USE_4BIT:
         load_kwargs.update(
             {
-                "device_map": "auto",
+                #"device_map": "auto",
                 "dtype": torch.float16,
                 "quantization_config": BitsAndBytesConfig(
                         load_in_4bit=True,                    # ← AQUÍ SÍ
@@ -247,8 +247,11 @@ def train(model_name, output_dir):
     tokenizer.save_pretrained(output_dir)
 
 if __name__ == "__main__":
-    models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod", "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod"]
-    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
+    #models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod", "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod"]
+    #output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
+
+    models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod"]
+    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
 
     for i in range(len(models)):
         model_name = models[i]
