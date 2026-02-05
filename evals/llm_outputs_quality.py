@@ -34,6 +34,7 @@ if __name__ == '__main__':
 
     print("#################### Simplified Model")
     print(f"Params: {count_trainable_parameters(simp_model)}")
+    print(simp_model)
     inputs = tokenizer(text, return_tensors="pt")
     outputs = simp_model.generate(**inputs.to(simp_model.device), max_new_tokens=100)
 
