@@ -8,7 +8,7 @@ tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
 
 
 # 1. Load your custom model
-model = Qwen2MoeForCausalLM.from_pretrained("/path/to/weights")
+model = Qwen2MoeForCausalLM.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
 
