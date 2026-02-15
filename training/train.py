@@ -251,7 +251,7 @@ if __name__ == "__main__":
     #output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
 
     models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"]
-    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained2"]
+    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained3"]
 
     for i in range(len(models)):
         model_name = models[i]
