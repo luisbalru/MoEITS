@@ -36,5 +36,7 @@ results = lm_eval.simple_evaluate(
     device="cuda:0"
 )
 
+clean_data = results["results"]
+
 with open('output_evals/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained_lmevals_hellaswag.json','w') as f:
-    f.write(json.dumps(results))
+    f.write(json.dumps(clean_data))
