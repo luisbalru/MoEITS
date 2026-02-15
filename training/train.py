@@ -212,8 +212,8 @@ def train(model_name, output_dir):
         gradient_accumulation_steps=16,
         
         learning_rate=2e-4,
-        num_train_epochs=100,
-        max_steps=100,  # ← test corto
+        num_train_epochs=200,
+        max_steps=200,  # ← test corto
         
         logging_steps=5,
         save_steps=50,
@@ -251,7 +251,7 @@ if __name__ == "__main__":
     #output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
 
     models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"]
-    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained"]
+    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained2"]
 
     for i in range(len(models)):
         model_name = models[i]
