@@ -2,13 +2,17 @@ import lm_eval
 from lm_eval.models.huggingface import HFLM
 from transformers import AutoTokenizer
 from moeits.models.qwen2_moe import Qwen2MoeForCausalLM
+import torch
 
 model_path = "/MoEITS/training/models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained/"
 tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
 
 
 # 1. Load your custom model
-model = Qwen2MoeForCausalLM.from_pretrained(model_path)
+model = Qwen2MoeForCausalLM.from_pretrained(model_path,device_map="auto",
+                dtype=torch.float16, 
+                trust_remote_code=True,
+                attn_implementation="eager")
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
 
