@@ -43,8 +43,8 @@ lm_obj = HFLM(
 results = lm_eval.simple_evaluate(
     model=lm_obj,
     tasks=["winogrande", "boolq","arc_easy","arc_challenge"],
-    num_fewshot=10,
-    batch_size=20,
+    num_fewshot=15,
+    batch_size=40,
     device="cuda:0"
 )
 
