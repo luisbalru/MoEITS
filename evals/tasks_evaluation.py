@@ -4,10 +4,22 @@ from transformers import AutoTokenizer
 from moeits.models.qwen2_moe import Qwen2MoeForCausalLM
 import torch
 import json
+import sys
+import os
 
+base_path = "/MoEITS/training/models/prueba/"
+output_path = "output_evals"
+model_name = sys.argv[1]
+model_path = os.path.join(base_path,model_name)
 
-model_path = "/MoEITS/training/models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained/"
-tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
+#model_path = "/MoEITS/training/models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained/"
+
+if 'qwen' in model_path:
+    tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
+elif 'deepseek' in model_path:
+    tokenizer_path = "deepseek-ai/DeepSeek-V2-Lite-Chat"
+else:
+    tokenizer_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
 
 # 1. Load your custom model
@@ -38,5 +50,6 @@ results = lm_eval.simple_evaluate(
 
 clean_data = results["results"]
 
-with open('output_evals/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained_lmevals_hellaswag2.json','w') as f:
+
+with open(os.path.join(output_path, model_name+"_lm_evals_hellaswag.json"),'w') as f:
     f.write(json.dumps(clean_data))
