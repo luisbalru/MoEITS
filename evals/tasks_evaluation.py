@@ -3,6 +3,8 @@ from lm_eval.models.huggingface import HFLM
 from transformers import AutoTokenizer
 from moeits.models.qwen2_moe import Qwen2MoeForCausalLM
 import torch
+import json
+
 
 model_path = "/MoEITS/training/models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained/"
 tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
@@ -34,4 +36,5 @@ results = lm_eval.simple_evaluate(
     device="cuda:0"
 )
 
-print(results)
+with open('output_evals/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained_lmevals_hellaswag.json','w') as f:
+    f.write(json.dumps(results))
