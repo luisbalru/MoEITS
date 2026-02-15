@@ -51,5 +51,5 @@ results = lm_eval.simple_evaluate(
 clean_data = results["results"]
 
 
-with open(os.path.join(output_path, model_name+"_lm_evals_hellaswag.json"),'w') as f:
+with open(os.path.join(output_path, model_name+"_lm_evals_tasks.json"),'w') as f:
     f.write(json.dumps(clean_data))
