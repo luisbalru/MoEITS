@@ -31,12 +31,12 @@ lm_obj = HFLM(
 results = lm_eval.simple_evaluate(
     model=lm_obj,
     tasks=["hellaswag"],
-    num_fewshot=5,
-    batch_size=8,
+    num_fewshot=10,
+    batch_size=20,
     device="cuda:0"
 )
 
 clean_data = results["results"]
 
-with open('output_evals/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained_lmevals_hellaswag.json','w') as f:
+with open('output_evals/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained_lmevals_hellaswag2.json','w') as f:
     f.write(json.dumps(clean_data))
