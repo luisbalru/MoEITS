@@ -25,7 +25,9 @@ lm_obj = HFLM(
 results = lm_eval.simple_evaluate(
     model=lm_obj,
     tasks=["hellaswag"],
-    num_fewshot=5
+    num_fewshot=5,
+    batch_size=8,
+    device="cuda:0"
 )
 
 print(results)
