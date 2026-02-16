@@ -236,6 +236,7 @@ def train(model_name, output_dir):
         learning_rate=2e-4,
         num_train_epochs=2,               # y sin max_steps
         logging_steps=20,
+        max_steps=1500,
         save_steps=1000,
         save_total_limit=3,
         bf16=True,
