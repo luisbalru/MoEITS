@@ -206,6 +206,7 @@ def train(model_name, output_dir):
     # Guarda esto como deepspeed_config_zero2.json en el mismo directorio
 
     # ← TrainingArguments corregidos
+    """
     training_args = TrainingArguments(
         output_dir=output_dir,
         per_device_train_batch_size=2,
@@ -226,6 +227,27 @@ def train(model_name, output_dir):
         gradient_checkpointing=False,
         dataloader_num_workers=0,
         remove_unused_columns=False,
+    )
+    """
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=64,   # effective batch 64
+        learning_rate=2e-4,
+        num_train_epochs=2,               # y sin max_steps
+        logging_steps=20,
+        save_steps=1000,
+        save_total_limit=3,
+        bf16=True,
+        fp16=False,
+        deepspeed=DEEPSPEED_CONFIG_PATH,
+        gradient_checkpointing=False,
+        dataloader_num_workers=4,
+        remove_unused_columns=False,
+        lr_scheduler_type="cosine",
+        warmup_ratio=0.05,
+        weight_decay=0.01,
+        optim="adamw_torch",
     )
 
     # ← Explícito antes del Trainer
