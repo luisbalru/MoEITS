@@ -206,7 +206,7 @@ def train(model_name, output_dir):
     # Guarda esto como deepspeed_config_zero2.json en el mismo directorio
 
     # ← TrainingArguments corregidos
-    """
+    
     training_args = TrainingArguments(
         output_dir=output_dir,
         per_device_train_batch_size=2,
@@ -214,7 +214,7 @@ def train(model_name, output_dir):
         
         learning_rate=2e-4,
         num_train_epochs=1000,
-        max_steps=500,  # ← test corto
+        max_steps=1500,  # ← test corto
         
         logging_steps=5,
         save_steps=50,
@@ -250,7 +250,7 @@ def train(model_name, output_dir):
         weight_decay=0.01,
         optim="adamw_torch",
     )
-
+    """
     # ← Explícito antes del Trainer
     model.config.use_cache = False
     model.gradient_checkpointing_disable()  # explícito
