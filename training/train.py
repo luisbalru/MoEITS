@@ -61,7 +61,7 @@ def train(model_name, output_dir):
             {
                 "device_map": "auto",
                 "dtype": torch.bfloat16,
-                "attn_implementation":"eager"
+                "attn_implementation":"sdpa"
             }
         )
 
@@ -214,7 +214,7 @@ def train(model_name, output_dir):
         
         learning_rate=2e-4,
         num_train_epochs=1000,
-        max_steps=1500,  # ← test corto
+        max_steps=500,  # ← test corto
         
         logging_steps=5,
         save_steps=50,
