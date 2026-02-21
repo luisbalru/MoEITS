@@ -210,10 +210,10 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         per_device_train_batch_size=2,
-        gradient_accumulation_steps=32,
+        gradient_accumulation_steps=16,
         
         learning_rate=2e-4,
-        num_train_epochs=1000,
+        num_train_epochs=2,
         max_steps=500,  # ← test corto
         
         logging_steps=5,
