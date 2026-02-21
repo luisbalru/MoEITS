@@ -212,28 +212,27 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         
-        # H200 QLoRA-friendly (4bit + LoRA)
-        per_device_train_batch_size=16,      # sube mucho
-        gradient_accumulation_steps=4,       # effective batch=64
-        # o batch=8 + accum=8 si prefieres menos iteraciones
+        # H200 QLoRA + ZeRO-2
+        per_device_train_batch_size=16,
+        gradient_accumulation_steps=4,    # effective batch=64
         
         learning_rate=2e-4,
-        max_steps=500,                       # test corto
-        # NO num_train_epochs
+        max_steps=500,
         
         dataloader_num_workers=8,
         logging_steps=20,
         save_steps=200,
         save_total_limit=2,
         
-        bf16=True,                           # compute en bf16
+        bf16=True,
         deepspeed=DEEPSPEED_CONFIG_PATH,
         gradient_checkpointing=False,
         remove_unused_columns=False,
         
-        # ← CLAVE para arreglar tu error
-        lr_scheduler_type=None,              # sin scheduler HF
+        # ← ARREGLA EL ERROR
+        lr_scheduler_type="constant",     # constante, sin conflictos DeepSpeed
     )
+
 
 
     """
