@@ -226,7 +226,6 @@ def train(model_name, output_dir):
         
         deepspeed=DEEPSPEED_CONFIG_PATH,
         gradient_checkpointing=False,
-        dataloader_num_workers=0,
         remove_unused_columns=False,
     )
     """
