@@ -216,8 +216,9 @@ def train(model_name, output_dir):
         num_train_epochs=2,
         max_steps=500,  # ← test corto
         
-        logging_steps=5,
-        save_steps=50,
+        dataloader_num_workers=8,
+        logging_steps=20,    # menos logging
+        save_steps=200,      # menos checkpoints
         save_total_limit=2,
         
         bf16=True,  # ← bf16 para QLoRA + H200
