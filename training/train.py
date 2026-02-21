@@ -15,6 +15,8 @@ from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 # ------------- CONFIGURACIÓN BÁSICA -------------
 TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
 
@@ -209,11 +211,10 @@ def train(model_name, output_dir):
     
     training_args = TrainingArguments(
         output_dir=output_dir,
-        per_device_train_batch_size=2,
-        gradient_accumulation_steps=16,
+        per_device_train_batch_size=8,
+        gradient_accumulation_steps=8,
         
         learning_rate=2e-4,
-        num_train_epochs=2,
         max_steps=500,  # ← test corto
         
         dataloader_num_workers=8,
@@ -226,7 +227,7 @@ def train(model_name, output_dir):
         
         deepspeed=DEEPSPEED_CONFIG_PATH,
         gradient_checkpointing=False,
-        remove_unused_columns=False,
+        remove_unused_columns=False
     )
     """
     training_args = TrainingArguments(
@@ -264,7 +265,6 @@ def train(model_name, output_dir):
     gc.collect()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
-    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
     trainer.train()
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
