@@ -1,12 +1,4 @@
 {
-  "scheduler": {
-    "type": "WarmupLR",
-    "params": {
-      "warmup_num_steps": 50,
-      "warmup_max_lr": 2e-4,
-      "warmup_min_lr": 0
-    }
-  },
   "zero_optimization": {
     "stage": 2,
     "overlap_comm": true,
