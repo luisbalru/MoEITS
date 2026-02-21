@@ -229,8 +229,6 @@ def train(model_name, output_dir):
         gradient_checkpointing=False,
         remove_unused_columns=False,
         
-        # ← ARREGLA EL ERROR
-        lr_scheduler_type="constant",     # constante, sin conflictos DeepSpeed
     )
 
 
