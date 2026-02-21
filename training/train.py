@@ -213,8 +213,8 @@ def train(model_name, output_dir):
         output_dir=output_dir,
         
         # H200 QLoRA + ZeRO-2
-        per_device_train_batch_size=16,
-        gradient_accumulation_steps=4,    # effective batch=64
+        per_device_train_batch_size=8,
+        gradient_accumulation_steps=8,    # effective batch=64
         
         learning_rate=2e-4,
         max_steps=500,
