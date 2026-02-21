@@ -20,7 +20,7 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 # ------------- CONFIGURACIÓN BÁSICA -------------
 TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
 
-USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
+USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 2048  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 500000  # dataset grande, para la segunda fase
