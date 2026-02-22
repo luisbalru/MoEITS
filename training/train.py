@@ -225,12 +225,12 @@ def train(model_name, output_dir):
         gradient_accumulation_steps=4,
         
         learning_rate=2e-4,
-        max_steps=500,
+        max_steps=750,
         
         dataloader_num_workers=16,
         dataloader_pin_memory=True,
-        logging_steps=20,
-        save_steps=200,
+        logging_steps=10,
+        save_strategy="epoch",
         save_total_limit=2,
         
         bf16=True,
@@ -238,9 +238,12 @@ def train(model_name, output_dir):
         gradient_checkpointing=True,
         remove_unused_columns=False,
         
-        # ← FUERZA SIN SCHEDULER
-        lr_scheduler_type="constant",
-        warmup_steps=0,                      # ← 0 warmup
+        lr_scheduler_type="cosine",      # Curva de aprendizaje natural
+        warmup_ratio=0.05,               # Dedica el 5% del tiempo a calentar motores suavemente
+        weight_decay=0.05,               # Regularización masiva para evitar memorizar (generaliza mejor)
+        neftune_noise_alpha=5.0,         # Magia negra para subir puntos en HellaSwag/ARC
+        optim="adamw_torch",             # Asegura el optimizador correcto para weight_decay
+        # ----------------------------------------
     )
 
 
@@ -290,7 +293,7 @@ if __name__ == "__main__":
     #output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
 
     models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"]
-    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained3"]
+    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained4"]
 
     for i in range(len(models)):
         model_name = models[i]
