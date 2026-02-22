@@ -205,7 +205,9 @@ def train(model_name, output_dir):
         
         return batch
 
-    data_collator = data_collator
+    from transformers import DataCollatorForLanguageModeling
+
+    data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
 
     # ------------- CONFIGURACIÓN DEEPSPEED + TRAINER -------------
 
@@ -219,20 +221,21 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         
-        per_device_train_batch_size=2,
-        gradient_accumulation_steps=32,
+        per_device_train_batch_size=64,
+        gradient_accumulation_steps=1,
         
         learning_rate=2e-4,
         max_steps=500,
         
-        dataloader_num_workers=0,
+        dataloader_num_workers=16,
+        dataloader_pin_memory=True,
         logging_steps=20,
         save_steps=200,
         save_total_limit=2,
         
         bf16=True,
         deepspeed=DEEPSPEED_CONFIG_PATH,
-        gradient_checkpointing=True,
+        gradient_checkpointing=False,
         remove_unused_columns=False,
         
         # ← FUERZA SIN SCHEDULER
