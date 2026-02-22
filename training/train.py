@@ -212,9 +212,8 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         
-        # H200 QLoRA + ZeRO-2
         per_device_train_batch_size=8,
-        gradient_accumulation_steps=8,    # effective batch=64
+        gradient_accumulation_steps=8,
         
         learning_rate=2e-4,
         max_steps=500,
@@ -229,6 +228,9 @@ def train(model_name, output_dir):
         gradient_checkpointing=False,
         remove_unused_columns=False,
         
+        # ← FUERZA SIN SCHEDULER
+        lr_scheduler_type="constant",
+        warmup_steps=0,                      # ← 0 warmup
     )
 
 
