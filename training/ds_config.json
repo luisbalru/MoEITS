@@ -9,5 +9,20 @@
   "train_micro_batch_size_per_gpu": "auto",
   "gradient_accumulation_steps": "auto",
   "bf16": { "enabled": "auto" },
-  "gradient_checkpointing": false
+  "gradient_checkpointing": false,
+  "optimizer": {
+    "type": "AdamW",
+    "params": {
+      "lr": "auto",
+      "weight_decay": "auto"
+    }
+  },
+  "scheduler": {
+    "type": "WarmupLR",
+    "params": {
+      "warmup_min_lr": "auto",
+      "warmup_max_lr": "auto",
+      "warmup_num_steps": "auto"
+    }
+  }
 }
