@@ -61,9 +61,9 @@ def train(model_name, output_dir):
     else:
         load_kwargs.update(
             {
-                "device_map": "auto",
+                #"device_map": "auto",
                 "dtype": torch.bfloat16,
-                "attn_implementation":"eager"
+                "attn_implementation":"sdpa"
             }
         )
 
