@@ -212,7 +212,7 @@ def train(model_name, output_dir):
 
     # ← TrainingArguments corregidos
     
-    model.gradient_checkpointing_enable()
+    #model.gradient_checkpointing_enable()
 
     training_args = TrainingArguments(
         output_dir=output_dir,
@@ -230,7 +230,7 @@ def train(model_name, output_dir):
         
         bf16=True,
         deepspeed=DEEPSPEED_CONFIG_PATH,
-        gradient_checkpointing=True,
+        gradient_checkpointing=False,
         remove_unused_columns=False,
         
         # ← FUERZA SIN SCHEDULER
