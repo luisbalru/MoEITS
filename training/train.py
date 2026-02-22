@@ -215,8 +215,8 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         
-        per_device_train_batch_size=64,
-        gradient_accumulation_steps=2,
+        per_device_train_batch_size=32,
+        gradient_accumulation_steps=4,
         
         learning_rate=2e-4,
         max_steps=500,
