@@ -212,6 +212,8 @@ def train(model_name, output_dir):
 
     # ← TrainingArguments corregidos
     
+    model.gradient_checkpointing_enable()
+
     training_args = TrainingArguments(
         output_dir=output_dir,
         
