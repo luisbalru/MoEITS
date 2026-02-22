@@ -20,7 +20,7 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 # ------------- CONFIGURACIÓN BÁSICA -------------
 TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
 
-USE_4BIT = True  # QLoRA (4bit) o False para bf16 LoRA
+USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 2048  # contexto inicial razonable
 SMALL_DATASET_SAMPLES = 8000  # dataset pequeño
 LARGE_DATASET_SAMPLES = 500000  # dataset grande, para la segunda fase
@@ -103,10 +103,14 @@ def train(model_name, output_dir):
         bias="none",
         task_type="CAUSAL_LM",
         target_modules=[
-            "gate",
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
             "gate_proj",
             "up_proj",
             "down_proj",
+            "gate" # El router del MoE
         ],
     )
 
@@ -164,7 +168,6 @@ def train(model_name, output_dir):
             batch["text"],
             max_length=MAX_SEQ_LEN,
             truncation=True,
-            padding="max_length",
         )
 
     tokenized = formatted.map(tokenize_fn, batched=True, remove_columns=["text"])
