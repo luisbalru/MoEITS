@@ -234,7 +234,7 @@ def train(model_name, output_dir):
         save_total_limit=2,
         
         bf16=True,
-        deepspeed=DEEPSPEED_CONFIG_PATH,
+        #deepspeed=DEEPSPEED_CONFIG_PATH,
         gradient_checkpointing=True,
         remove_unused_columns=False,
         
