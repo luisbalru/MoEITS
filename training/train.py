@@ -117,6 +117,8 @@ def train(model_name, output_dir):
 
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
+    model.enable_input_require_grads()
+    model.config.use_cache = False
 
     # ------------- PREPARACIÓN DEL DATASET -------------
 
@@ -217,8 +219,8 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         
-        per_device_train_batch_size=16,
-        gradient_accumulation_steps=4,
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=32,
         
         learning_rate=2e-4,
         max_steps=500,
@@ -230,7 +232,7 @@ def train(model_name, output_dir):
         
         bf16=True,
         deepspeed=DEEPSPEED_CONFIG_PATH,
-        gradient_checkpointing=False,
+        gradient_checkpointing=True,
         remove_unused_columns=False,
         
         # ← FUERZA SIN SCHEDULER
