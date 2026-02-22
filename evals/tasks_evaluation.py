@@ -42,7 +42,7 @@ lm_obj = HFLM(
 # 3. Run the evaluation programmatically
 results = lm_eval.simple_evaluate(
     model=lm_obj,
-    tasks=["helloswag","winogrande", "boolq","arc_easy","arc_challenge"],
+    tasks=["hellaswag","winogrande", "boolq","arc_easy","arc_challenge"],
     num_fewshot=15,
     batch_size=40,
     device="cuda:0"
