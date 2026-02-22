@@ -221,8 +221,8 @@ def train(model_name, output_dir):
     training_args = TrainingArguments(
         output_dir=output_dir,
         
-        per_device_train_batch_size=64,
-        gradient_accumulation_steps=1,
+        per_device_train_batch_size=8,
+        gradient_accumulation_steps=8,
         
         learning_rate=2e-4,
         max_steps=500,
@@ -235,7 +235,7 @@ def train(model_name, output_dir):
         
         bf16=True,
         deepspeed=DEEPSPEED_CONFIG_PATH,
-        gradient_checkpointing=False,
+        gradient_checkpointing=True,
         remove_unused_columns=False,
         
         # ← FUERZA SIN SCHEDULER
@@ -270,7 +270,7 @@ def train(model_name, output_dir):
     """
     # ← Explícito antes del Trainer
     model.config.use_cache = False
-    model.gradient_checkpointing_disable()  # explícito
+    #model.gradient_checkpointing_disable()  # explícito
 
     trainer = Trainer(
         model=model,
