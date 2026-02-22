@@ -228,7 +228,7 @@ def train(model_name, output_dir):
         
         bf16=True,
         deepspeed=DEEPSPEED_CONFIG_PATH,
-        gradient_checkpointing=False,
+        gradient_checkpointing=True,
         remove_unused_columns=False,
         
         # ← FUERZA SIN SCHEDULER
