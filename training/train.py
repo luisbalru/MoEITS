@@ -223,7 +223,7 @@ def train(model_name, output_dir):
         learning_rate=2e-4,
         max_steps=500,
         
-        dataloader_num_workers=8,
+        dataloader_num_workers=0,
         logging_steps=20,
         save_steps=200,
         save_total_limit=2,
