@@ -13,12 +13,21 @@ from transformers import (
 import gc
 from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
 from transformers import BitsAndBytesConfig
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training+
+import sys
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 # ------------- CONFIGURACIÓN BÁSICA -------------
-TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
+
+model_name = sys.argv[1]
+
+if 'qwen' in model_name:
+    TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
+elif 'deepseek' in model_name:
+    TOKENIZER_NAME = "deepseek-ai/DeepSeek-V2-Lite-Chat"
+elif 'mixtral' in model_name:
+    TOKENIZER_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
 USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 2048  # contexto inicial razonable
@@ -291,15 +300,17 @@ def train(model_name, output_dir):
 if __name__ == "__main__":
     #models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod", "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod"]
     #output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
-
+    base_path = "/MoEITS/simplified_models/"
+    output_path = "./models/prueba/"
+    
     models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"]
     output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained5"]
 
-    for i in range(len(models)):
-        model_name = models[i]
-        print("Training ", model_name)
-        output_dir = output_dirs[i]
-        train(model_name, output_dir)
+    model_name = os.path.join(base_path, sys.argv[1])
+    exp = sys.argv[2]
+    print("Training ", model_name)
+    output_dir = os.path.join(output_path, model_name+'_retrained_'+exp)
+    train(model_name, output_dir)
     
 
     # Cuando el pipeline funcione, cambia `train_dataset=large_dataset`
