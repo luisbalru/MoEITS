@@ -13,7 +13,7 @@ from transformers import (
 import gc
 from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
 from transformers import BitsAndBytesConfig
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training+
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 import sys
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
