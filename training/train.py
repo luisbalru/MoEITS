@@ -74,7 +74,7 @@ def train(model_name, output_dir):
             {
                 #"device_map": "auto",
                 "dtype": torch.bfloat16,
-                "attn_implementation":"sdpa"
+                "attn_implementation":"eager"
             }
         )
 
