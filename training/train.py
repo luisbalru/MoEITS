@@ -12,6 +12,8 @@ from transformers import (
 )
 import gc
 from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
+from moeits.models.deepseek_v2_lite.modeling_deepseek import DeepseekForCausalLM
+from moeits.models.mixtral8x7b.modeling_mixtral import MixtralForCausalLM
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 import sys
@@ -77,51 +79,50 @@ def train(model_name, output_dir):
         )
 
     #model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
-
-    model = Qwen2MoeForCausalLM.from_pretrained(model_name, **load_kwargs)
+    if 'qwen' in model_name:
+        model = Qwen2MoeForCausalLM.from_pretrained(model_name, **load_kwargs)
+        lora_config = LoraConfig(
+            r=64,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=[
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
+                "gate" # El router del MoE
+            ],
+        )
+    elif 'deepseek' in model_name:
+        model = DeepseekForCausalLM.from_pretrained(model_name, **load_kwargs)
+        lora_config = LoraConfig(
+            r=64,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=[
+                "gate_proj",
+                "up_proj",
+                "down_proj",
+                "gate" # El router del MoE
+            ],
+        )
+    elif 'mixtral' in model_name:
+        model = MixtralForCausalLM.from_pretrained(model_name, **load_kwargs)
+        # TODO: Complete LoraConfig
 
 
     if USE_4BIT:
         model = prepare_model_for_kbit_training(model)
 
-    """
-    # Config LoRA: ajusta `target_modules` a los nombres reales en Mixtral
-    lora_config = LoraConfig(
-        r=64,
-        lora_alpha=16,
-        lora_dropout=0.1,
-        bias="none",
-        task_type="CAUSAL_LM",
-        target_modules=[
-            "q_proj",
-            "k_proj",
-            "v_proj",
-            "o_proj",
-            "gate",
-            "w1",
-            "w2",
-            "w3"
-        ],
-    )
-    """
     # Config LoRA: ajusta `target_modules` a los nombres reales en Qwen
-    lora_config = LoraConfig(
-        r=64,
-        lora_alpha=16,
-        lora_dropout=0.1,
-        bias="none",
-        task_type="CAUSAL_LM",
-        target_modules=[
-            "q_proj",
-            "k_proj",
-            "v_proj",
-            "o_proj",
-            "gate_proj",
-            "up_proj",
-            "down_proj",
-            "gate" # El router del MoE
-        ],
-    )
+    
 
 
     model = get_peft_model(model, lora_config)
