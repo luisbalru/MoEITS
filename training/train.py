@@ -12,7 +12,7 @@ from transformers import (
 )
 import gc
 from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
-from moeits.models.deepseek_v2_lite.modeling_deepseek import DeepseekForCausalLM
+from moeits.models.deepseek_v2_lite.modeling_deepseek import DeepseekV2ForCausalLM
 from moeits.models.mixtral8x7b.modeling_mixtral import MixtralForCausalLM
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
@@ -99,7 +99,7 @@ def train(model_name, output_dir):
             ],
         )
     elif 'deepseek' in model_name:
-        model = DeepseekForCausalLM.from_pretrained(model_name, **load_kwargs)
+        model = DeepseekV2ForCausalLM.from_pretrained(model_name, **load_kwargs)
         lora_config = LoraConfig(
             r=64,
             lora_alpha=16,
