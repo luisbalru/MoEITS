@@ -2,6 +2,8 @@ import lm_eval
 from lm_eval.models.huggingface import HFLM
 from transformers import AutoTokenizer
 from moeits.models.qwen2_moe import Qwen2MoeForCausalLM
+from moeits.models.deepseek_v2_lite.modeling_deepseek import DeepseekV2ForCausalLM
+from moeits.models.mixtral8x7b.modeling_mixtral import MixtralForCausalLM
 import torch
 import json
 import sys
@@ -16,17 +18,26 @@ model_path = os.path.join(base_path,model_name)
 
 if 'qwen' in model_path:
     tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
-elif 'deepseek' in model_path:
-    tokenizer_path = "deepseek-ai/DeepSeek-V2-Lite-Chat"
-else:
-    tokenizer_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-
-
-# 1. Load your custom model
-model = Qwen2MoeForCausalLM.from_pretrained(model_path,device_map="auto",
+    model = Qwen2MoeForCausalLM.from_pretrained(model_path,device_map="auto",
                 dtype=torch.float16, 
                 trust_remote_code=True,
                 attn_implementation="eager")
+elif 'deepseek' in model_path:
+    tokenizer_path = "deepseek-ai/DeepSeek-V2-Lite-Chat"
+    model = MixtralForCausalLM.from_pretrained(model_path,device_map="auto",
+                dtype=torch.float16, 
+                trust_remote_code=True,
+                attn_implementation="eager")
+else:
+    tokenizer_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    model = Qwen2MoeForCausalLM.from_pretrained(model_path,device_map="auto",
+                dtype=torch.float16, 
+                trust_remote_code=True,
+                attn_implementation="eager")
+
+
+# 1. Load your custom model
+
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
 
