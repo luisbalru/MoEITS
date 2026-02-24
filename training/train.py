@@ -119,6 +119,22 @@ def train(model_name, output_dir):
     elif 'mixtral' in model_name:
         model = MixtralForCausalLM.from_pretrained(model_name, **load_kwargs)
         # TODO: Complete LoraConfig
+        lora_config = LoraConfig(
+            r=64,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=[
+                "q_proj",
+                "k_proj",
+                "o_proj",
+                "v_proj",
+                "w1",
+                "w2",
+                "w3",
+            ],
+        )
 
 
     if USE_4BIT:
