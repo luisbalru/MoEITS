@@ -24,13 +24,13 @@ if 'qwen' in model_path:
                 attn_implementation="eager")
 elif 'deepseek' in model_path:
     tokenizer_path = "deepseek-ai/DeepSeek-V2-Lite-Chat"
-    model = MixtralForCausalLM.from_pretrained(model_path,device_map="auto",
+    model = DeepseekV2ForCausalLM.from_pretrained(model_path,device_map="auto",
                 dtype=torch.float16, 
                 trust_remote_code=True,
                 attn_implementation="eager")
 else:
     tokenizer_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-    model = Qwen2MoeForCausalLM.from_pretrained(model_path,device_map="auto",
+    model = MixtralForCausalLM.from_pretrained(model_path,device_map="auto",
                 dtype=torch.float16, 
                 trust_remote_code=True,
                 attn_implementation="eager")
