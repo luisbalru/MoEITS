@@ -107,10 +107,14 @@ def train(model_name, output_dir):
             bias="none",
             task_type="CAUSAL_LM",
             target_modules=[
+                "q_proj",
+                "kv_a_layernorm",
+                "kv_a_proj_with_mqa",
+                "kv_b_proj",
+                "o_proj",
                 "gate_proj",
                 "up_proj",
                 "down_proj",
-                "gate" # El router del MoE
             ],
         )
     elif 'mixtral' in model_name:
