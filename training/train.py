@@ -313,7 +313,7 @@ if __name__ == "__main__":
     model_name = os.path.join(base_path, sys.argv[1])
     exp = sys.argv[2]
     print("Training ", model_name)
-    output_dir = os.path.join(output_path, model_name+'_retrained_'+exp)
+    output_dir = os.path.join(output_path, sys.argv[1]+'_retrained_'+exp)
     train(model_name, output_dir)
     
 
