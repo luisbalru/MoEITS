@@ -254,7 +254,8 @@ def train(model_name, output_dir):
         gradient_accumulation_steps=4,
         
         learning_rate=2e-4,
-        max_steps=900,
+        #max_steps=900,
+        max_steps=500,
         
         dataloader_num_workers=16,
         dataloader_pin_memory=True,
@@ -323,9 +324,6 @@ if __name__ == "__main__":
     base_path = "/MoEITS/simplified_models/"
     output_path = "./models/prueba/"
     
-    models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"]
-    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained5"]
-
     model_name = os.path.join(base_path, sys.argv[1])
     exp = sys.argv[2]
     print("Training ", model_name)
