@@ -9,10 +9,11 @@ import json
 import sys
 import os
 
-base_path = "/MoEITS/training/models/prueba/"
+#base_path = "/MoEITS/training/models/prueba/"
 output_path = "output_evals"
 model_name = sys.argv[1]
-model_path = os.path.join(base_path,model_name)
+model_path = model_name
+#model_path = os.path.join(base_path,model_name)
 
 #model_path = "/MoEITS/training/models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained/"
 
