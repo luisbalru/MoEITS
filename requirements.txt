@@ -11,3 +11,5 @@ lm-format-enforcer
 pytest
 deepspeed
 bitsandbytes
+peft
+lm_eval

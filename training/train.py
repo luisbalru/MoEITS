@@ -12,11 +12,24 @@ from transformers import (
 )
 import gc
 from moeits.models.qwen2_moe.modeling_qwen2_moe import Qwen2MoeForCausalLM
+from moeits.models.deepseek_v2_lite.modeling_deepseek import DeepseekV2ForCausalLM
+from moeits.models.mixtral8x7b.modeling_mixtral import MixtralForCausalLM
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+import sys
+
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 # ------------- CONFIGURACIÓN BÁSICA -------------
-TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
+
+model_name = sys.argv[1]
+
+if 'qwen' in model_name:
+    TOKENIZER_NAME = "Qwen/Qwen1.5-MoE-A2.7B-Chat"
+elif 'deepseek' in model_name:
+    TOKENIZER_NAME = "deepseek-ai/DeepSeek-V2-Lite-Chat"
+elif 'mixtral' in model_name:
+    TOKENIZER_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
 USE_4BIT = False  # QLoRA (4bit) o False para bf16 LoRA
 MAX_SEQ_LEN = 2048  # contexto inicial razonable
@@ -59,58 +72,82 @@ def train(model_name, output_dir):
     else:
         load_kwargs.update(
             {
-                "device_map": "auto",
+                #"device_map": "auto",
                 "dtype": torch.bfloat16,
                 "attn_implementation":"eager"
             }
         )
 
     #model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **load_kwargs)
-
-    model = Qwen2MoeForCausalLM.from_pretrained(model_name, **load_kwargs)
+    if 'qwen' in model_name:
+        model = Qwen2MoeForCausalLM.from_pretrained(model_name, **load_kwargs)
+        lora_config = LoraConfig(
+            r=64,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=[
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
+                "gate" # El router del MoE
+            ],
+        )
+    elif 'deepseek' in model_name:
+        model = DeepseekV2ForCausalLM.from_pretrained(model_name, **load_kwargs)
+        lora_config = LoraConfig(
+            r=64,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=[
+                "q_proj",
+                "kv_a_proj_with_mqa",
+                "kv_b_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
+            ],
+        )
+    elif 'mixtral' in model_name:
+        model = MixtralForCausalLM.from_pretrained(model_name, **load_kwargs)
+        # TODO: Complete LoraConfig
+        lora_config = LoraConfig(
+            r=64,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=[
+                "q_proj",
+                "k_proj",
+                "o_proj",
+                "v_proj",
+                "w1",
+                "w2",
+                "w3",
+            ],
+        )
 
 
     if USE_4BIT:
         model = prepare_model_for_kbit_training(model)
 
-    """
-    # Config LoRA: ajusta `target_modules` a los nombres reales en Mixtral
-    lora_config = LoraConfig(
-        r=64,
-        lora_alpha=16,
-        lora_dropout=0.1,
-        bias="none",
-        task_type="CAUSAL_LM",
-        target_modules=[
-            "q_proj",
-            "k_proj",
-            "v_proj",
-            "o_proj",
-            "gate",
-            "w1",
-            "w2",
-            "w3"
-        ],
-    )
-    """
     # Config LoRA: ajusta `target_modules` a los nombres reales en Qwen
-    lora_config = LoraConfig(
-        r=64,
-        lora_alpha=16,
-        lora_dropout=0.1,
-        bias="none",
-        task_type="CAUSAL_LM",
-        target_modules=[
-            "gate",
-            "gate_proj",
-            "up_proj",
-            "down_proj",
-        ],
-    )
+    
 
 
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
+    model.enable_input_require_grads()
+    model.config.use_cache = False
 
     # ------------- PREPARACIÓN DEL DATASET -------------
 
@@ -162,7 +199,6 @@ def train(model_name, output_dir):
             batch["text"],
             max_length=MAX_SEQ_LEN,
             truncation=True,
-            padding="max_length",
         )
 
     tokenized = formatted.map(tokenize_fn, batched=True, remove_columns=["text"])
@@ -198,7 +234,9 @@ def train(model_name, output_dir):
         
         return batch
 
-    data_collator = data_collator
+    from transformers import DataCollatorForLanguageModeling
+
+    data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
 
     # ------------- CONFIGURACIÓN DEEPSPEED + TRAINER -------------
 
@@ -206,31 +244,66 @@ def train(model_name, output_dir):
     # Guarda esto como deepspeed_config_zero2.json en el mismo directorio
 
     # ← TrainingArguments corregidos
+    
+    #model.gradient_checkpointing_enable()
+
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        
+        per_device_train_batch_size=16,   
+        gradient_accumulation_steps=4,
+        
+        learning_rate=2e-4,
+        #max_steps=900,
+        max_steps=500,
+        
+        dataloader_num_workers=16,
+        dataloader_pin_memory=True,
+        logging_steps=10,
+        save_strategy="epoch",
+        save_total_limit=2,
+        
+        bf16=True,
+        #deepspeed=DEEPSPEED_CONFIG_PATH,
+        gradient_checkpointing=True,
+        remove_unused_columns=False,
+        
+        lr_scheduler_type="cosine",      # Curva de aprendizaje natural
+        warmup_ratio=0.05,               # Dedica el 5% del tiempo a calentar motores suavemente
+        weight_decay=0.05,               # Regularización masiva para evitar memorizar (generaliza mejor)
+        neftune_noise_alpha=5.0,         # Magia negra para subir puntos en HellaSwag/ARC
+        optim="adamw_torch",             # Asegura el optimizador correcto para weight_decay
+        # ----------------------------------------
+    )
+
+
+
+    """
     training_args = TrainingArguments(
         output_dir=output_dir,
         per_device_train_batch_size=2,
-        gradient_accumulation_steps=16,
-        
+        gradient_accumulation_steps=64,   # effective batch 64
         learning_rate=2e-4,
-        num_train_epochs=100,
-        max_steps=100,  # ← test corto
-        
-        logging_steps=5,
-        save_steps=50,
-        save_total_limit=2,
-        
-        bf16=True,  # ← bf16 para QLoRA + H200
-        fp16=False,  # ← False
-        
+        num_train_epochs=2,               # y sin max_steps
+        logging_steps=20,
+        max_steps=1500,
+        save_steps=1000,
+        save_total_limit=3,
+        bf16=True,
+        fp16=False,
         deepspeed=DEEPSPEED_CONFIG_PATH,
         gradient_checkpointing=False,
-        dataloader_num_workers=0,
+        dataloader_num_workers=4,
         remove_unused_columns=False,
+        lr_scheduler_type="cosine",
+        warmup_ratio=0.05,
+        weight_decay=0.01,
+        optim="adamw_torch",
     )
-
+    """
     # ← Explícito antes del Trainer
     model.config.use_cache = False
-    model.gradient_checkpointing_disable()  # explícito
+    #model.gradient_checkpointing_disable()  # explícito
 
     trainer = Trainer(
         model=model,
@@ -241,7 +314,6 @@ def train(model_name, output_dir):
     gc.collect()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
-    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
     trainer.train()
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
@@ -249,15 +321,14 @@ def train(model_name, output_dir):
 if __name__ == "__main__":
     #models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod", "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod"]
     #output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod_retrained", "./models/prueba/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod_retrained"]
-
-    models = ["/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod"]
-    output_dirs = ["./models/prueba/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod_retrained"]
-
-    for i in range(len(models)):
-        model_name = models[i]
-        print("Training ", model_name)
-        output_dir = output_dirs[i]
-        train(model_name, output_dir)
+    base_path = "/MoEITS/simplified_models/"
+    output_path = "./models/prueba/"
+    
+    model_name = os.path.join(base_path, sys.argv[1])
+    exp = sys.argv[2]
+    print("Training ", model_name)
+    output_dir = os.path.join(output_path, sys.argv[1]+'_retrained_'+exp)
+    train(model_name, output_dir)
     
 
     # Cuando el pipeline funcione, cambia `train_dataset=large_dataset`
