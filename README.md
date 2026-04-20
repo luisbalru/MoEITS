@@ -100,11 +100,13 @@ This project is licensed under the GPL v3 License - see the LICENSE file for det
 If you use MoEITS in your research, please cite our paper:
 
 ```bash
-@article{balderas2026-moeits,
-  title={[Paper Title]},
-  author={[Author List]},
-  journal={Open Research Europe},
-  year={[Year]},
-  doi={[DOI of the published paper]}
+@misc{balderas2026moeitsgreenaiapproach,
+      title={MoEITS: A Green AI approach for simplifying MoE-LLMs}, 
+      author={Luis Balderas and Miguel Lastra and José M. Benítez},
+      year={2026},
+      eprint={2604.10603},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2604.10603}, 
 }
 ```
