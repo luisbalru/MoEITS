@@ -1,6 +1,5 @@
 # MoEITS: A Green AI approach for simplifying MoE-LLMs
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 **MoEITS is a novel pruning methodology for Mixture of Experts Large Language Models (MoE-LLMs) that simplifies architectures while maintaining performance through targeted healing.**
