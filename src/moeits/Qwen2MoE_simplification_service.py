@@ -19,7 +19,7 @@ class Qwen2MoE_Simplification_Service(MoEITS_Simplification_Service):
         self.nmi_base_path = nmi_base_path
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=True, torch_dtype=torch.bfloat16, device_map="auto")
+        self.original_model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=True, dtype=torch.bfloat16, device_map="auto")
         self.config_model = self.original_model.config.to_dict()
         self.layers = {}
         self.factor = factor
