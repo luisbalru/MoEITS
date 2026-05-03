@@ -50,8 +50,6 @@ class MoEITS_Simplification_Service(ABC):
     
     def _simplify_block_fixed_number_of_experts(self, nmi_matrix):
         remaining_experts = np.arange(nmi_matrix.shape[0]).tolist()
-        mean = np.mean(nmi_matrix)
-        iqr_val = iqr(nmi_matrix)
         while len(remaining_experts) > self.number_of_experts:
             arg_e1, arg_e2 = unravel_index(np.argmax(nmi_matrix), nmi_matrix.shape)
             closeness_e1 = np.mean(nmi_matrix[arg_e1,:])
