@@ -12,7 +12,7 @@ import os
 
 
 class DeepSeekV2Lite_Simplification_Service(MoEITS_Simplification_Service):
-    def __init__(self, model_name, factor=1.5, output_base_path='', auth_path='/MoEITS/utils/config.json', nmi_base_path = '/MoEITS/NMI_matrices/'):
+    def __init__(self, model_name, factor=None, output_base_path='', auth_path='/MoEITS/utils/config.json', nmi_base_path = '/MoEITS/NMI_matrices/', number_of_experts = None):
         with open(auth_path, 'r') as f:
             auth = json.load(f)
         
@@ -24,6 +24,7 @@ class DeepSeekV2Lite_Simplification_Service(MoEITS_Simplification_Service):
         self.layers = {}
         self.factor = factor
         self.output_base_path = output_base_path
+        self.number_of_experts = number_of_experts
 
         
     def _save_NMI_matrix(self, name):

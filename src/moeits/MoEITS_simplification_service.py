@@ -47,6 +47,19 @@ class MoEITS_Simplification_Service(ABC):
             remaining_experts.pop(arg_expert_remove)
             nmi_matrix = np.delete(np.delete(nmi_matrix, arg_expert_remove, axis=0), arg_expert_remove, axis=1)
         return remaining_experts
+    
+    def _simplify_block_fixed_number_of_experts(self, nmi_matrix):
+        remaining_experts = np.arange(nmi_matrix.shape[0]).tolist()
+        mean = np.mean(nmi_matrix)
+        iqr_val = iqr(nmi_matrix)
+        while len(remaining_experts) > self.number_of_experts:
+            arg_e1, arg_e2 = unravel_index(np.argmax(nmi_matrix), nmi_matrix.shape)
+            closeness_e1 = np.mean(nmi_matrix[arg_e1,:])
+            closeness_e2 = np.mean(nmi_matrix[arg_e2,:])
+            arg_expert_remove = arg_e1 if closeness_e1 > closeness_e2 else arg_e2
+            remaining_experts.pop(arg_expert_remove)
+            nmi_matrix = np.delete(np.delete(nmi_matrix, arg_expert_remove, axis=0), arg_expert_remove, axis=1)
+        return remaining_experts
 
     def _simplify_model(self):
         experts = []
@@ -55,7 +68,10 @@ class MoEITS_Simplification_Service(ABC):
         print("Simplifying model...")
         for k in self.layers.keys():
             nmi_encoder = self.layers[k]
-            remaining_experts = self._simplify_block(nmi_encoder)
+            if self.number_of_experts:
+                remaining_experts = self._simplify_block_fixed_number_of_experts(nmi_encoder)
+            else:
+                remaining_experts = self._simplify_block(nmi_encoder)
             experts.append(len(remaining_experts))
             name_experts.append(remaining_experts)
         
