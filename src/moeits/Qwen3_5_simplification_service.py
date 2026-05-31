@@ -36,7 +36,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             num_layers = self.config_model["text_config"]["num_hidden_layers"]
             for i in range(num_layers):
                 nmi = self._calculate_NMI_experts(i)
-                self.layers['L_'+str(i)] = nmi.numpy()
+                self.layers['L_'+str(i)] = nmi.detach().cpu().float().numpy()
             self._save_NMI_matrix(name)
     
     def _calculate_NMI_experts(self, idx):
