@@ -54,7 +54,7 @@ import torch
 from tqdm import tqdm
 
 def _estimate_auto_bins(x):
-    """Replicates NumPy's 'auto' bin selection logic on CUDA."""
+    """Replicates NumPy's 'auto' bin selection logic on CUDA with overflow protection."""
     n = x.numel()
     if n < 2:
         return 1
@@ -63,14 +63,19 @@ def _estimate_auto_bins(x):
     q75, q25 = torch.quantile(x.float(), torch.tensor([0.75, 0.25], device=x.device))
     iqr = q75 - q25
     
-    if iqr > 0:
-        fd_width = 2.0 * iqr * (n ** (-1.0 / 3.0))
-        fd_bins = int(torch.ceil((x.max() - x.min()) / fd_width).item())
-    else:
-        fd_bins = 1
-
     # 2. Sturges estimator
     sturges_bins = int(torch.ceil(torch.log2(torch.tensor(n, dtype=torch.float32)) + 1).item())
+
+    # Add a strict tolerance (1e-6) to prevent tiny IQRs from generating microscopic bin widths
+    if iqr > 1e-6:
+        fd_width = 2.0 * iqr * (n ** (-1.0 / 3.0))
+        fd_bins = int(torch.ceil((x.max() - x.min()) / fd_width).item())
+        
+        # SAFETY CAP: Never allow more bins than there are data points 
+        # (You can also hardcode this to something like 100000 if your arrays are massive)
+        fd_bins = min(fd_bins, n)
+    else:
+        fd_bins = 1
 
     return max(fd_bins, sturges_bins, 1)
 
