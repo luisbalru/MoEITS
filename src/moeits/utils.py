@@ -144,11 +144,11 @@ def compute_pairwise_nmi_matrix(tensor_3d, bins='auto'):
             # Asymmetric 2D Histogram map
             AB_bins = A_b * b_B + B_b
             
-            # Joint Histogram
-            AB_hist = torch.bincount(AB_bins, minlength=b_A * b_B).float()
+            # THE FIX: Use unique instead of bincount to avoid memory explosions
+            # This implicitly filters out all 0-count bins automatically!
+            _, AB_hist = torch.unique(AB_bins, return_counts=True)
+            AB_hist = AB_hist.float()
             
-            # Sparse filtering: drastically reduces math overhead for joint spaces
-            AB_hist = AB_hist[AB_hist > 0]
             P_AB = AB_hist / total_elements
             H_AB = -torch.sum(P_AB * torch.log(P_AB))
             
