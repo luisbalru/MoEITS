@@ -15,7 +15,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             auth = json.load(f)
         self.nmi_base_path = nmi_base_path    
         self.model_name = model_name
-        self.config_model = hf_hub_download(repo_id=self.model_name, filename="config.json")
+        self.config_model = hf_hub_download(repo_id=self.model_name, subfolder="blob", filename="config.json")
         self.safetensor_index = hf_hub_download(repo_id=self.model_name, filename="model.safetensors.index.json")
         with open(self.safetensor_index, "r") as f:               
             self.weight_map = json.load(f)["weight_map"]  
