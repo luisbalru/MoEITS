@@ -6,7 +6,7 @@ from numpy import unravel_index
 import json
 from abc import ABC, abstractmethod
 from copy import deepcopy
-
+import torch
 
 class MoEITS_Simplification_Service(ABC):
     @abstractmethod
@@ -48,7 +48,7 @@ class MoEITS_Simplification_Service(ABC):
             nmi_matrix = np.delete(np.delete(nmi_matrix, arg_expert_remove, axis=0), arg_expert_remove, axis=1)
         return remaining_experts
     
-    def _simplify_block_fixed_number_of_experts(self, nmi_matrix):
+    def _simplify_block_fixed_number_of_experts_numpy(self, nmi_matrix):
         remaining_experts = np.arange(nmi_matrix.shape[0]).tolist()
         while len(remaining_experts) > self.number_of_experts:
             arg_e1, arg_e2 = unravel_index(np.argmax(nmi_matrix), nmi_matrix.shape)
@@ -58,6 +58,44 @@ class MoEITS_Simplification_Service(ABC):
             remaining_experts.pop(arg_expert_remove)
             nmi_matrix = np.delete(np.delete(nmi_matrix, arg_expert_remove, axis=0), arg_expert_remove, axis=1)
         return remaining_experts
+    
+    def _simplify_block_fixed_number_of_experts(self, nmi_matrix):
+        """
+        PyTorch version of the expert pruning method.
+        Expects nmi_matrix to be a 2D PyTorch Tensor.
+        """
+        device = nmi_matrix.device
+        num_experts = nmi_matrix.shape[0]
+        
+        # Track original indices using a 1D tensor
+        remaining_experts = torch.arange(num_experts, device=device)
+        
+        while remaining_experts.numel() > self.number_of_experts:
+            # 1. Find the flat index of the maximum value
+            flat_arg = torch.argmax(nmi_matrix)
+            
+            # 2. Unravel the 1D index into 2D coordinates (row, col)
+            cols = nmi_matrix.shape[1]
+            arg_e1 = flat_arg // cols
+            arg_e2 = flat_arg % cols
+            
+            # 3. Calculate mean closeness for both candidate experts
+            closeness_e1 = torch.mean(nmi_matrix[arg_e1, :])
+            closeness_e2 = torch.mean(nmi_matrix[arg_e2, :])
+            
+            # 4. Identify which expert is more redundant (higher mean closeness)
+            arg_expert_remove = arg_e1 if closeness_e1 > closeness_e2 else arg_e2
+            
+            # 5. Create a boolean mask to filter out the removed expert
+            # This replaces np.delete for both the list and the matrix rows/cols
+            mask = torch.ones(nmi_matrix.shape[0], dtype=torch.bool, device=device)
+            mask[arg_expert_remove] = False
+            
+            # 6. Shrink the tracking tensor and the matrix simultaneously
+            remaining_experts = remaining_experts[mask]
+            nmi_matrix = nmi_matrix[mask][:, mask]
+        
+        return remaining_experts.tolist()
 
     def _simplify_model(self):
         experts = []
