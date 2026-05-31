@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         "--mode",
-        choices=["prod", "test"],
+        choices=["online", "offline"],
         required=True
     )
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         else:    
             simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-m{mode}/')
     elif "Qwen3.5-35B-A3B" in model_name:
-        qwen_simp_service = Qwen3_5_Simplification_Service("Qwen3.5-35B-A3B", number_of_experts=20)
+        qwen_simp_service = Qwen3_5_Simplification_Service("Qwen3.5-35B-A3B", number_of_experts=num_experts)
         simplified_qwen = qwen_simp_service.simplify_original_model(mode=mode, name=model_name)
 
 
