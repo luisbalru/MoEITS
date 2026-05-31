@@ -15,7 +15,9 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             auth = json.load(f)
         self.nmi_base_path = nmi_base_path    
         self.model_name = model_name
-        self.config_model = hf_hub_download(repo_id=self.model_name, filename="config.json")
+        self.config_model_path = hf_hub_download(repo_id=self.model_name, filename="config.json")
+        with open(self.config_model_path, "r") as f:
+            self.config_model = json.load(f)
         self.safetensor_index = hf_hub_download(repo_id=self.model_name, filename="model.safetensors.index.json")
         with open(self.safetensor_index, "r") as f:               
             self.weight_map = json.load(f)["weight_map"]  
@@ -31,8 +33,6 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             self.layers = dict(np.load(os.path.join(self.nmi_base_path, name+'.npz')))
         else:
             print("Calculating NMI metrics...")
-            print(self.config_model)
-            input()
             num_layers = self.config_model["text_config"]["num_hidden_layers"]
             for i in range(num_layers):
                 nmi = self._calculate_NMI_experts(i)
