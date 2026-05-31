@@ -48,3 +48,12 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
                 nmis.append(compute_pairwise_nmi_matrix(weights))
 
         return 0.5*nmis[0] + 0.5*nmis[1]
+    
+    def _build_simplified_model(self):
+        pass
+
+    def _set_weights_to_experts(self):
+        pass
+
+    def _set_weights_to_new_model(self):
+        pass
