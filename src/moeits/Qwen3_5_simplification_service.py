@@ -23,6 +23,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             self.weight_map = json.load(f)["weight_map"]  
         self.output_base_path = output_base_path
         self.number_of_experts = number_of_experts
+        self.layers = {}
         
 
     # TODO
