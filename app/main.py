@@ -2,6 +2,7 @@ from moeits.Mixtral8x7b_simplification_service import Mixtral8x7b_Simplification
 from moeits.DeepSeekMoE_simplification_service import DeepSeekMoE_Simplification_Service
 from moeits.DeepSeekV2Lite_simplification_service import DeepSeekV2Lite_Simplification_Service
 from moeits.Qwen2MoE_simplification_service import Qwen2MoE_Simplification_Service
+from moeits.Qwen3_5_simplification_service import Qwen3_5_Simplification_Service
 import numpy as np
 import sys
 import argparse
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         "--model-name",
-        choices=["deepseekv2lite", "mixtral8x7B", "qwen1.5"],
+        choices=["deepseekv2lite", "mixtral8x7B", "qwen1.5", "Qwen3.5-35B-A3B"],
         required=True
     )
 
@@ -68,4 +69,8 @@ if __name__ == '__main__':
             simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-ne{num_experts}-m{mode}/')
         else:    
             simplified_qwen.save_pretrained(f'/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f{factor}-m{mode}/')
+    elif "Qwen3.5-35B-A3B" in model_name:
+        qwen_simp_service = Qwen3_5_Simplification_Service("Qwen3.5-35B-A3B", number_of_experts=20)
+        simplified_qwen = qwen_simp_service.simplify_original_model(mode=mode, name=model_name)
+
 

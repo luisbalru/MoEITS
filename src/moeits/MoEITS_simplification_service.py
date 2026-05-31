@@ -105,7 +105,7 @@ class MoEITS_Simplification_Service(ABC):
         for k in self.layers.keys():
             nmi_encoder = self.layers[k]
             if self.number_of_experts:
-                remaining_experts = self._simplify_block_fixed_number_of_experts(nmi_encoder)
+                remaining_experts = self._simplify_block_fixed_number_of_experts(torch.from_numpy(nmi_encoder))
             else:
                 remaining_experts = self._simplify_block(nmi_encoder)
             experts.append(len(remaining_experts))
@@ -120,31 +120,18 @@ class MoEITS_Simplification_Service(ABC):
         self._set_weights_to_experts(name_experts)
         
 
-    def simplify_original_model(self, mode='prod', name=None):
-        if mode == 'prod':
-            self._get_mutual_information_metrics(name)
-            num_experts, name_experts = self._simplify_model()
-        elif mode == 'test':
-            #Simulation
-            print("Simulating pruning process...")
-            if name == 'qwen1.5':
-                num_experts = np.random.randint(1, 60, size=24).tolist()
-            elif name == 'deepseek':
-                num_experts = np.random.randint(1, 64, size=26).tolist()
-            elif name == 'mixtral':
-                num_experts = np.random.randint(1, 8, size=32).tolist()
-            else:
-                print('Unsupported model for simplification')
-                return None
-            name_experts = []
-            for n in num_experts:
-                name_experts.append(list(range(0, n)))
-            
-        else:
-            print("Incorrect mode for simplification")
-            return None
+    def simplify_original_model(self, mode='online', name=None):        
+        self._get_mutual_information_metrics(name)
+        num_experts, name_experts = self._simplify_model()
         self.name_experts = name_experts
-        self._build_simplified_model(num_experts, name_experts)
-        self._set_weights_to_simplified_model(name_experts)
-        self.simplified_model.generation_config = deepcopy(self.original_model.generation_config)
-        return self.simplified_model
+
+        if mode == 'online':
+            self._build_simplified_model(num_experts, name_experts)
+            self._set_weights_to_simplified_model(name_experts)
+            self.simplified_model.generation_config = deepcopy(self.original_model.generation_config)
+            return self.simplified_model
+        elif mode == "offline":
+            print(self.name_experts)
+        
+        else:
+            print("Unknown mode")
