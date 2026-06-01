@@ -131,7 +131,7 @@ class MoEITS_Simplification_Service(ABC):
             self.simplified_model.generation_config = deepcopy(self.original_model.generation_config)
             return self.simplified_model
         elif mode == "offline":
-            print(self.name_experts)
+            self._build_simplified_model(self.name_experts)
         
         else:
             print("Unknown mode")

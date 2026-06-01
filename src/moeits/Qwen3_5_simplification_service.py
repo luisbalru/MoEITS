@@ -3,6 +3,7 @@ from moeits.utils import compute_pairwise_nmi_matrix
 from safetensors import safe_open   
 import torch
 from huggingface_hub import hf_hub_download  
+from safetensors.torch import load_file, save_file
 import json
 import os
 import numpy as np
@@ -25,8 +26,6 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
         self.number_of_experts = number_of_experts
         self.layers = {}
         
-
-    # TODO
     def _get_mutual_information_metrics(self, name):
         nmi_info = os.listdir(self.nmi_base_path)
         if name+'.npz' in nmi_info:
@@ -52,8 +51,26 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
 
         return 0.5*nmis[0] + 0.5*nmis[1]
     
-    def _build_simplified_model(self):
-        pass
+    def _build_simplified_model(self, expert_names):
+        num_layers = self.config_model["text_config"]["num_hidden_layers"]
+        for idx in range(num_layers):
+            tensor_names = [f"model.language_model.layers.{idx}.mlp.experts.gate_up_proj", f"model.language_model.layers.{idx}.mlp.experts.down_proj"]
+            for t in tensor_names:
+                shard_filename = self.weight_map[t] 
+                shard_path = hf_hub_download(repo_id=self.model_name, filename=shard_filename)
+                shard_tensors = load_file(shard_path, device="cuda")
+                if t in shard_tensors:
+                    shard_tensors[t] = shard_tensors[t][expert_names[idx]]
+                    new_shard_path = os.path.join(self.output_base_path, shard_filename)
+                    save_file(shard_tensors, new_shard_path)
+                   
+
+            gate_name = f"model.language_model.layers.{idx}.mlp.gate.weight"
+            gate_shard_path = hf_hub_download(repo_id=self.model_name, filename=gate_name)
+            gate_shard_tensors = load_file(gate_shard_path, device="cuda")
+            if gate_name in gate_shard_tensors:
+                gate_shard_tensors[gate_name] = gate_shard_tensors[gate_name][expert_names[idx]]
+            torch.cuda.empty_cache() 
 
     def _set_weights_to_experts(self):
         pass
