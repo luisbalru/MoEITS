@@ -66,7 +66,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
                    
 
             gate_name = f"model.language_model.layers.{idx}.mlp.gate.weight"
-            gate_shard_path = hf_hub_download(repo_id=self.model_name, filename=gate_name)
+            gate_shard_path = hf_hub_download(repo_id=self.model_name, filename=self.weight_map[gate_name])
             gate_shard_tensors = load_file(gate_shard_path, device="cuda")
             if gate_name in gate_shard_tensors:
                 gate_shard_tensors[gate_name] = gate_shard_tensors[gate_name][expert_names[idx]]
