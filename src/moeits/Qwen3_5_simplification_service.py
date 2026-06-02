@@ -58,18 +58,16 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             for t in tensor_names:
                 print("Simplifying ", t)
                 shard_filename = self.weight_map[t] 
-                shard_path = hf_hub_download(repo_id=self.model_name, filename=shard_filename)
+                shard_path = os.path.join(self.output_base_path, shard_filename)
                 shard_tensors = load_file(shard_path, device="cuda")
                 if t in shard_tensors:
                     shard_tensors[t] = shard_tensors[t][expert_names[idx]]
-                    print(shard_tensors[t].shape)
-                    input()
                     new_shard_path = os.path.join(self.output_base_path, shard_filename)
                     save_file(shard_tensors, new_shard_path)
                    
 
             gate_name = f"model.language_model.layers.{idx}.mlp.gate.weight"
-            gate_shard_path = hf_hub_download(repo_id=self.model_name, filename=self.weight_map[gate_name])
+            gate_shard_path = os.path.join(self.output_base_path, shard_filename)
             gate_shard_tensors = load_file(gate_shard_path, device="cuda")
             if gate_name in gate_shard_tensors:
                 gate_shard_tensors[gate_name] = gate_shard_tensors[gate_name][expert_names[idx]]
