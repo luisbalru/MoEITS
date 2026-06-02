@@ -56,11 +56,14 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
         for idx in range(num_layers):
             tensor_names = [f"model.language_model.layers.{idx}.mlp.experts.gate_up_proj", f"model.language_model.layers.{idx}.mlp.experts.down_proj"]
             for t in tensor_names:
+                print("Simplifying ", t)
                 shard_filename = self.weight_map[t] 
                 shard_path = hf_hub_download(repo_id=self.model_name, filename=shard_filename)
                 shard_tensors = load_file(shard_path, device="cuda")
                 if t in shard_tensors:
                     shard_tensors[t] = shard_tensors[t][expert_names[idx]]
+                    print(shard_tensors[t].shape)
+                    input()
                     new_shard_path = os.path.join(self.output_base_path, shard_filename)
                     save_file(shard_tensors, new_shard_path)
                    
