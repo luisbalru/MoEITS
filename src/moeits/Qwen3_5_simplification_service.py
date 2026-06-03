@@ -66,6 +66,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
                    
 
             gate_name = f"model.language_model.layers.{idx}.mlp.gate.weight"
+            shard_filename = self.weight_map[gate_name]
             gate_shard_path = os.path.join(self.output_base_path, shard_filename)
             gate_shard_tensors = load_file(gate_shard_path, device="cuda")
             if gate_name in gate_shard_tensors:
