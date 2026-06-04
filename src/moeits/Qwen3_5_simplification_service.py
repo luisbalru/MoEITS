@@ -52,6 +52,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
         return 0.5*nmis[0] + 0.5*nmis[1]
     
     def _build_simplified_model(self, expert_names):
+        torch.cuda.empty_cache() 
         num_layers = self.config_model["text_config"]["num_hidden_layers"]
         for idx in range(num_layers):
             tensor_names = [f"model.language_model.layers.{idx}.mlp.experts.gate_up_proj", f"model.language_model.layers.{idx}.mlp.experts.down_proj"]
@@ -70,6 +71,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             gate_shard_path = os.path.join(self.output_base_path, shard_filename)
             gate_shard_tensors = load_file(gate_shard_path, device="cuda")
             if gate_name in gate_shard_tensors:
+                print("Simplifying ", gate_name)
                 gate_shard_tensors[gate_name] = gate_shard_tensors[gate_name][expert_names[idx]]
                 save_file(gate_shard_path, gate_shard_tensors)
             torch.cuda.empty_cache() 
