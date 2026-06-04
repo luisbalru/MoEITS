@@ -73,7 +73,7 @@ class Qwen3_5_Simplification_Service(MoEITS_Simplification_Service):
             if gate_name in gate_shard_tensors:
                 print("Simplifying ", gate_name)
                 gate_shard_tensors[gate_name] = gate_shard_tensors[gate_name][expert_names[idx]]
-                save_file(gate_shard_path, gate_shard_tensors)
+                save_file(gate_shard_tensors, gate_shard_path)
             torch.cuda.empty_cache() 
 
     def _set_weights_to_experts(self):
