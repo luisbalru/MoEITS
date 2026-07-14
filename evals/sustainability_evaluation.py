@@ -130,10 +130,10 @@ def benchmark_model(
                     attn_implementation="eager")
     elif 'mixtral' in model_path:
         tokenizer_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-        model = MixtralForCausalLM.from_pretrained(model_path,device_map="auto",
+        model = MixtralForCausalLM.from_pretrained(model_path,
                     dtype=torch.float16, 
                     trust_remote_code=True,
-                    attn_implementation="eager")
+                    attn_implementation="eager").to(device).eval()
     else:
         tokenizer_path = tokenizer_path or model_path
         model = AutoModelForCausalLM.from_pretrained(
