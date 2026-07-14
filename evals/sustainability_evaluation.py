@@ -369,7 +369,7 @@ if __name__ == "__main__":
     df.to_csv(f"{name}_sustainability_metrics.csv", index=False)
 
     plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix=f"{name}_pareto")
-
+    """
     print("Analyzing DeepSeek-V2-Lite-Chat")
     configs = [
         {"name": "base", "pruning": 0.0, "path": "deepseek-ai/DeepSeek-V2-Lite-Chat",
@@ -416,3 +416,4 @@ if __name__ == "__main__":
     df.to_csv(f"{name}_sustainability_metrics.csv", index=False)
 
     plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix=f"{name}_pareto")
+    """
