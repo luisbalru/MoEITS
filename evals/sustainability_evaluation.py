@@ -145,7 +145,7 @@ def benchmark_model(
     inputs = tok(prompt, return_tensors="pt").to(device)
 
     try:
-        pct, expert_info = experts_pruned_pct(model, original_experts_per_layer=8)
+        pct, expert_info = experts_pruned_pct(model, original_experts_per_layer=7)
     except Exception:
         pct, expert_info = float("nan"), None
 
