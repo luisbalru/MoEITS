@@ -136,12 +136,12 @@ def benchmark_model(
                     attn_implementation="eager")
     else:
         tokenizer_path = tokenizer_path or model_path
-        tok = AutoTokenizer.from_pretrained(tokenizer_path)
         model = AutoModelForCausalLM.from_pretrained(
             model_path, torch_dtype=dtype
         ).to(device).eval()
 
     n_params = sum(p.numel() for p in model.parameters())
+    tok = AutoTokenizer.from_pretrained(tokenizer_path)
     inputs = tok(prompt, return_tensors="pt").to(device)
 
     try:
@@ -353,7 +353,7 @@ if __name__ == "__main__":
     configs = [
         {"name": "base", "pruning": 0.0, "path": "mistralai/Mixtral-8x7B-Instruct-v0.1",
          "tokenizer":"mistralai/Mixtral-8x7B-Instruct-v0.1"},
-        {"name": "base", "pruning": 0.5, "path": "/MoEITS/simplified_models/mixtral_8x7b_instruct-f0.5-mprod",
+        {"name": "f0.5-mprod", "pruning": 0.5, "path": "/MoEITS/simplified_models/mixtral_8x7b_instruct-f0.5-mprod",
          "tokenizer":"mistralai/Mixtral-8x7B-Instruct-v0.1"},
     ]
 
