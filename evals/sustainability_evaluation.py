@@ -351,6 +351,7 @@ def plot_all_pareto(df: pd.DataFrame, perf_col="tokens_per_sec", save_prefix=Non
 # Ejemplo de uso
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
+    """
     print("Analyzing Mixtral-8x7B-Instruct-v0.1")
     configs = [
         {"name": "base", "pruning": 0.0, "path": "mistralai/Mixtral-8x7B-Instruct-v0.1",
@@ -386,7 +387,7 @@ if __name__ == "__main__":
     df.to_csv(f"{name}_sustainability_metrics.csv", index=False)
 
     plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix=f"{name}_pareto")
-
+    """
 
     print("Analyzing Qwen1.5-MoE-A2.7B-Chat")
     configs = [
