@@ -13,3 +13,5 @@ deepspeed
 bitsandbytes
 peft
 lm_eval
+pynvml
+matplotlib
