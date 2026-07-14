@@ -115,6 +115,7 @@ def benchmark_model(
     n_runs: int = 5,
     device: str = "cuda",
     dtype=torch.float16,
+    original_experts_per_layer=7
 ) -> dict:
     if 'qwen' in model_path:
         tokenizer_path = "Qwen/Qwen1.5-MoE-A2.7B"
@@ -145,7 +146,7 @@ def benchmark_model(
     inputs = tok(prompt, return_tensors="pt").to(device)
 
     try:
-        pct, expert_info = experts_pruned_pct(model, original_experts_per_layer=7)
+        pct, expert_info = experts_pruned_pct(model, original_experts_per_layer=original_experts_per_layer)
     except Exception:
         pct, expert_info = float("nan"), None
 
@@ -239,7 +240,7 @@ def run_suite(configs: list) -> pd.DataFrame:
     rows = []
     for cfg in configs:
         print(f"== Benchmarking {cfg['name']} ==")
-        m = benchmark_model(cfg["path"], tokenizer_path=cfg.get("tokenizer"))
+        m = benchmark_model(cfg["path"], tokenizer_path=cfg.get("tokenizer"), original_experts_per_layer=cfg.get("num_original_experts"))
         m["name"] = cfg["name"]
         m["pruning"] = cfg.get("pruning", 0.0)
         m["experts_pruned_pct"] = m.get("experts_pruned_pct", np.nan)
@@ -350,18 +351,67 @@ def plot_all_pareto(df: pd.DataFrame, perf_col="tokens_per_sec", save_prefix=Non
 # Ejemplo de uso
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
+    print("Analyzing Mixtral-8x7B-Instruct-v0.1")
     configs = [
         {"name": "base", "pruning": 0.0, "path": "mistralai/Mixtral-8x7B-Instruct-v0.1",
-         "tokenizer":"mistralai/Mixtral-8x7B-Instruct-v0.1"},
+         "tokenizer":"mistralai/Mixtral-8x7B-Instruct-v0.1", "num_original_experts":7},
         {"name": "f0.5-mprod", "pruning": 0.5, "path": "/MoEITS/simplified_models/mixtral_8x7b_instruct-f0.5-mprod",
-         "tokenizer":"mistralai/Mixtral-8x7B-Instruct-v0.1"},
+         "tokenizer":"mistralai/Mixtral-8x7B-Instruct-v0.1", "num_original_experts":7},
     ]
+    name = "mixtral_8x7b_instruct"
 
     df = run_suite(configs)
     df = add_reduction_columns(df, baseline_name="base")
 
     pd.set_option("display.float_format", lambda v: f"{v:,.3f}")
     print(df.to_string(index=False))
-    df.to_csv("sustainability_metrics.csv", index=False)
+    df.to_csv(f"{name}_sustainability_metrics.csv", index=False)
 
-    plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix="pareto")
+    plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix=f"{name}_pareto")
+
+    print("Analyzing DeepSeek-V2-Lite-Chat")
+    configs = [
+        {"name": "base", "pruning": 0.0, "path": "deepseek-ai/DeepSeek-V2-Lite-Chat",
+         "tokenizer":"deepseek-ai/DeepSeek-V2-Lite-Chat", "num_original_experts":64},
+        {"name": "f1.25-mprod", "pruning": 1.25, "path": "/MoEITS/simplified_models/deepseek-v2-lite-chat-f1.25-mprod",
+         "tokenizer":"deepseek-ai/DeepSeek-V2-Lite-Chat", "num_original_experts":64},
+    ]
+    name = "deepseek-v2-lite-chat"
+
+    df = run_suite(configs)
+    df = add_reduction_columns(df, baseline_name="base")
+
+    pd.set_option("display.float_format", lambda v: f"{v:,.3f}")
+    print(df.to_string(index=False))
+    df.to_csv(f"{name}_sustainability_metrics.csv", index=False)
+
+    plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix=f"{name}_pareto")
+
+
+    print("Analyzing Qwen1.5-MoE-A2.7B-Chat")
+    configs = [
+        {"name": "base", "pruning": 0.0, "path": "Qwen/Qwen1.5-MoE-A2.7B-Chat",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+        {"name": "f7.5-mprod", "pruning": 7.5, "path": "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f7.5-mprod",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+        {"name": "f5.0-mprod", "pruning": 5.0, "path": "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f5.0-mprod",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+        {"name": "f2.5-mprod", "pruning": 2.5, "path": "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f2.5-mprod",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+        {"name": "f1.25-mprod", "pruning": 1.25, "path": "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f1.25-mprod",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+        {"name": "f0.75-mprod", "pruning": 0.75, "path": "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f0.75-mprod",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+        {"name": "f0.5-mprod", "pruning": 0.5, "path": "/MoEITS/simplified_models/qwen1.5-MoE-A2.7B-Chat-f0.5-mprod",
+         "tokenizer":"Qwen/Qwen1.5-MoE-A2.7B-Chat", "num_original_experts":60},
+    ]
+    name = "qwen1.5-MoE-A2.7B-Chat"
+
+    df = run_suite(configs)
+    df = add_reduction_columns(df, baseline_name="base")
+
+    pd.set_option("display.float_format", lambda v: f"{v:,.3f}")
+    print(df.to_string(index=False))
+    df.to_csv(f"{name}_sustainability_metrics.csv", index=False)
+
+    plot_all_pareto(df, perf_col="tokens_per_sec", save_prefix=f"{name}_pareto")
